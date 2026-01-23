@@ -13,6 +13,7 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 
 import { ProductService } from './product.service';
 import { Product } from './product.model';
+import { MatSelectModule } from "@angular/material/select";
 
 @Component({
   selector: 'app-products',
@@ -27,13 +28,14 @@ import { Product } from './product.model';
     MatTableModule,
     MatIconModule,
     MatTooltipModule,
-    MatPaginatorModule
-  ],
+    MatPaginatorModule,
+    MatSelectModule
+],
   templateUrl: './product.component.html'
 })
 export class ProductsComponent implements OnInit {
 
-  displayedColumns = ['name', 'code', 'price', 'actions'];
+  displayedColumns = ['name', 'code', 'unit', 'price', 'actions'];
 
   products: Product[] = [];
   totalCount = 0;
@@ -47,7 +49,8 @@ export class ProductsComponent implements OnInit {
   model = {
     name: '',
     code: '',
-    price: 0
+    price: 0,
+    unit: 'PCS'
   };
 
   constructor(private service: ProductService) {}
@@ -71,7 +74,7 @@ export class ProductsComponent implements OnInit {
   // 🔹 ADD PRODUCT → GO TO FIRST PAGE
   save() {
     this.service.addProduct(this.model).subscribe(() => {
-      this.model = { name: '', code: '', price: 0 };
+      this.model = { name: '', code: '', price: 0,unit:'PCS' };
 
       this.currentPage = 1;
       this.paginator?.firstPage();
