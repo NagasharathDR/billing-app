@@ -32,7 +32,8 @@
                 "glob": "**/*",
                 "input": "node_modules/material-icons/iconfont",
                 "output": "assets/material-icons"
-              }
+              },
+              "src/public"
             ],
             "styles": [
               "node_modules/material-icons/iconfont/material-icons.css",
@@ -105,7 +106,8 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              "src/public"
             ],
             "styles": [
               "node_modules/material-icons/iconfont/material-icons.css",

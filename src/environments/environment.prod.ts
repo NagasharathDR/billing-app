@@ -1,5 +1,5 @@
 export const environment = {
     production: true,
-    apiBaseUrl: 'https://your-production-url/api'
+    apiBaseUrl: 'https://billing-api-pwk1.onrender.com'
   };
   
