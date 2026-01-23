@@ -1,0 +1,25 @@
+.layout {
+    height: 100vh;
+  }
+  
+  .sidenav {
+    width: 220px;
+  }
+  
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  
+  .content {
+    padding: 24px;
+  }
+  
+  .spacer {
+    flex: 1 1 auto;
+  }
+  

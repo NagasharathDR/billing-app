@@ -1,0 +1,214 @@
+/* ===============================
+   GLOBAL BASE
+================================ */
+@font-face {
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/assets/material-icons/MaterialIcons-Regular.woff2') format('woff2'),
+         url('/assets/material-icons/MaterialIcons-Regular.woff') format('woff');
+  }
+  
+  .material-icons {
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+  }
+  
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: Roboto, "Segoe UI", Arial, sans-serif;
+    background: #f9fafb;
+  }
+  
+  /* Utility */
+  .spacer {
+    flex: 1 1 auto;
+  }
+  
+  /* ===============================
+     APP LAYOUT (SIDENAV + TOOLBAR)
+  ================================ */
+  
+  .layout {
+    height: 100vh;
+  }
+  
+  /* ===============================
+   SIDENAV POLISH
+================================ */
+
+.sidenav {
+    width: 240px;
+    background: #ffffff;
+    border-right: 1px solid #e5e7eb;
+  }
+  
+  /* Brand */
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 18px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .brand mat-icon {
+    font-size: 28px;
+    color: #2563eb;
+  }
+  
+  .brand .accent {
+    color: #2563eb;
+  }
+  
+  /* Menu list */
+  .mat-nav-list {
+    padding-top: 12px;
+  }
+  
+  .mat-nav-list a {
+    margin: 6px 12px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    height: 44px;
+    color: #111827;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  
+  .mat-nav-list a mat-icon {
+    margin-right: 12px;
+    color: #6b7280;
+  }
+  
+  /* Hover */
+  .mat-nav-list a:hover {
+    background: #f1f5f9;
+  }
+  
+  /* Active */
+  .mat-nav-list a.active {
+    background: #e0e7ff;
+    color: #1e40af;
+  }
+  
+  .mat-nav-list a.active mat-icon {
+    color: #1e40af;
+  }
+  
+  
+  /* Top Toolbar */
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  
+  .page-title {
+    font-weight: 600;
+  }
+  
+  /* Main Content */
+  .content {
+    padding: 20px;
+    background: #f9fafb;
+    min-height: calc(100vh - 64px);
+  }
+  
+  /* ===============================
+     FORMS
+  ================================ */
+  
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+  }
+  
+  .add-btn {
+    height: 56px;
+    align-self: center;
+  }
+  
+  /* ===============================
+     TABLE (MATERIAL MDC – COMPACT)
+  ================================ */
+  
+  .table-wrapper {
+    overflow-x: auto;
+  }
+  
+  /* Compact rows */
+  .mdc-data-table__row {
+    height: 42px !important;
+  }
+  
+  /* Compact cells */
+  .mdc-data-table__cell,
+  .mdc-data-table__header-cell {
+    padding: 6px 12px !important;
+    font-size: 14px;
+  }
+  
+  .mdc-data-table__header-cell {
+    font-weight: 600;
+  }
+  
+  /* Remove spacing issues */
+  .mat-mdc-table {
+    border-spacing: 0 !important;
+  }
+  
+  /* Remove extra card padding around table */
+  .table-card-content {
+    padding: 0 !important;
+  }
+  
+  /* ===============================
+     ACTION COLUMN FIX
+  ================================ */
+  
+  .mat-column-actions {
+    flex: 0 0 96px !important;
+    width: 96px !important;
+    min-width: 96px !important;
+    max-width: 96px !important;
+    text-align: center;
+  }
+  
+  .action-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  /* ===== FIX SIDENAV ICON + TEXT ALIGNMENT ===== */
+
+.mat-mdc-list-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px;
+  }
+  
+  .mat-mdc-list-item mat-icon {
+    font-size: 22px;
+    min-width: 24px;
+  }
+  
