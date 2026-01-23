@@ -33,7 +33,11 @@
                 "input": "node_modules/material-icons/iconfont",
                 "output": "assets/material-icons"
               },
-              "src/public"
+              {
+                "glob": "_redirects",
+                "input": "src",
+                "output": "."
+              }
             ],
             "styles": [
               "node_modules/material-icons/iconfont/material-icons.css",
@@ -107,7 +111,11 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
-              "src/public"
+              {
+                "glob": "_redirects",
+                "input": "src",
+                "output": "."
+              }
             ],
             "styles": [
               "node_modules/material-icons/iconfont/material-icons.css",
