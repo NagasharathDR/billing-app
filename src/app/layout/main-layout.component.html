@@ -1,0 +1,75 @@
+<mat-sidenav-container class="layout-container">
+
+    <!-- SIDEBAR -->
+    <mat-sidenav
+  class="sidenav"
+  [mode]="isMobile ? 'over' : 'side'"
+  [opened]="isMobile ? isOpened : true"
+  [style.width.px]="!isMobile && isCollapsed ? 72 : 260">
+
+  <!-- SIDEBAR FLEX CONTAINER -->
+  <div class="sidenav-inner">
+
+    <!-- BRAND -->
+    <div class="brand">
+      <div class="brand-icon-wrapper">
+        <mat-icon>receipt_long</mat-icon>
+      </div>
+
+      <div class="brand-text" [class.hidden]="isCollapsed">
+        <span class="brand-main">NNK</span>
+        <span class="brand-accent">Ledger</span>
+        <span class="brand-pro">Pro</span>
+      </div>
+    </div>
+
+    <!-- MENU -->
+    <nav class="menu">
+      <a class="menu-item" routerLink="/products" (click)="closeIfMobile()">
+        <mat-icon>inventory_2</mat-icon>
+        <span class="menu-text" [class.hidden]="isCollapsed">Products</span>
+      </a>
+
+      <a class="menu-item" routerLink="/billing" (click)="closeIfMobile()">
+        <mat-icon>point_of_sale</mat-icon>
+        <span class="menu-text" [class.hidden]="isCollapsed">Billing</span>
+      </a>
+
+      <a class="menu-item" routerLink="/invoices" (click)="closeIfMobile()">
+        <mat-icon>description</mat-icon>
+        <span class="menu-text" [class.hidden]="isCollapsed">Invoices</span>
+      </a>
+    </nav>
+
+    <!-- FOOTER (NOW WORKS, NO SCROLL) -->
+    <div class="sidebar-footer" [class.hidden]="isCollapsed">
+      <div class="app-name">NNK Ledger Pro</div>
+      <div class="app-version">v1.0.0</div>
+    </div>
+
+  </div>
+</mat-sidenav>
+
+    
+  
+    <!-- MAIN CONTENT -->
+    <mat-sidenav-content [style.marginLeft]="contentMargin">
+  
+      <mat-toolbar color="primary" class="topbar">
+        <button mat-icon-button (click)="toggleSidebar()">
+          <mat-icon>menu</mat-icon>
+        </button>
+  
+        <span class="toolbar-title">
+          Quality Marketing – Billing System
+        </span>
+      </mat-toolbar>
+  
+      <div class="content">
+        <router-outlet></router-outlet>
+      </div>
+  
+    </mat-sidenav-content>
+  
+  </mat-sidenav-container>
+  
