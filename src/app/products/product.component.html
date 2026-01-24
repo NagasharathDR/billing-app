@@ -1,30 +1,43 @@
 <!-- ========================= -->
-<!-- Product Add Form         -->
+<!-- Product Form             -->
 <!-- ========================= -->
 <mat-card>
-  <mat-card-title>Product Management</mat-card-title>
+  <mat-card-title>
+    {{ editingProductId ? 'Edit Product' : 'Add Product' }}
+  </mat-card-title>
 
   <mat-card-content>
-    <div class="form-grid">
+    <form [formGroup]="productForm" class="form-grid">
 
       <mat-form-field appearance="outline">
         <mat-label>Product Name</mat-label>
-        <input matInput [(ngModel)]="model.name" />
+        <input matInput formControlName="name" />
+        <mat-error *ngIf="productForm.get('name')?.hasError('required')">
+          Required
+        </mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline">
         <mat-label>Product Code</mat-label>
-        <input matInput [(ngModel)]="model.code" />
+        <input matInput formControlName="code" />
+        <mat-error *ngIf="productForm.get('code')?.hasError('required')">
+          Required
+        </mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline">
-        <mat-label>Price</mat-label>
-        <input matInput type="number" [(ngModel)]="model.price" />
+        <mat-label>Actual Price</mat-label>
+        <input matInput type="number" formControlName="actualPrice" />
       </mat-form-field>
 
       <mat-form-field appearance="outline">
-        <mat-label>Default Unit</mat-label>
-        <mat-select [(ngModel)]="model.unit">
+        <mat-label>Selling Price</mat-label>
+        <input matInput type="number" formControlName="sellingPrice" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Unit</mat-label>
+        <mat-select formControlName="unit">
           <mat-option value="PCS">PCS</mat-option>
           <mat-option value="KG">KG</mat-option>
           <mat-option value="LTR">LTR</mat-option>
@@ -32,11 +45,22 @@
         </mat-select>
       </mat-form-field>
 
-      <button mat-raised-button color="primary" class="add-btn" (click)="save()">
-        Add Product
-      </button>
+      <div class="form-actions">
+        <button mat-raised-button color="primary" (click)="save()">
+          {{ editingProductId ? 'Update' : 'Add Product' }}
+        </button>
+      
+        <button
+          *ngIf="editingProductId"
+          mat-stroked-button
+          color="warn"
+          type="button"
+          (click)="resetForm()">
+          Cancel
+        </button>
+      </div>
 
-    </div>
+    </form>
   </mat-card-content>
 </mat-card>
 
@@ -52,62 +76,63 @@
   <mat-card-content>
 
     <!-- 🔍 Search (Server-side) -->
-    <mat-form-field appearance="outline" style="width: 300px;">
-      <mat-label>Search</mat-label>
-      <input matInput placeholder="Name or Code" #searchBox (keyup)="onSearch(searchBox.value)" />
+    <mat-form-field appearance="outline" style="width: 300px;"> <mat-label>Search</mat-label> <input matInput
+        placeholder="Name or Code" #searchBox (keyup)="onSearch(searchBox.value)" />
     </mat-form-field>
+    <button mat-stroked-button color="primary" style="margin-left:12px"
+      (click)="showActualPrice = !showActualPrice; updateDisplayedColumns()">
+      {{ showActualPrice ? 'Hide Actual Price' : 'Show Actual Price' }}
+    </button>
 
-    <!-- 📋 Table -->
-    <div class="table-wrapper">
-      <table mat-table [dataSource]="products" class="mat-elevation-z0">
+    <table mat-table [dataSource]="products">
 
-        <!-- Name -->
-        <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef>Name</th>
-          <td mat-cell *matCellDef="let p">{{ p.name }}</td>
-        </ng-container>
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let p">{{ p.name }}</td>
+      </ng-container>
 
-        <!-- Code -->
-        <ng-container matColumnDef="code">
-          <th mat-header-cell *matHeaderCellDef>Code</th>
-          <td mat-cell *matCellDef="let p">{{ p.code }}</td>
-        </ng-container>
-        <!-- Unit -->
-        <ng-container matColumnDef="unit">
-          <th mat-header-cell *matHeaderCellDef>Unit</th>
-          <td mat-cell *matCellDef="let p">{{ p.unit }}</td>
-        </ng-container>
-        <!-- Price -->
-        <ng-container matColumnDef="price">
-          <th mat-header-cell *matHeaderCellDef>Price</th>
-          <td mat-cell *matCellDef="let p">{{ p.price }}</td>
-        </ng-container>
+      <ng-container matColumnDef="code">
+        <th mat-header-cell *matHeaderCellDef>Code</th>
+        <td mat-cell *matCellDef="let p">{{ p.code }}</td>
+      </ng-container>
 
-        <!-- Actions -->
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Actions</th>
-          <td mat-cell *matCellDef="let p">
-            <div class="action-buttons">
-              <button mat-icon-button color="primary" matTooltip="Edit" (click)="edit(p)">
-                <mat-icon>edit</mat-icon>
-              </button>
+      <ng-container matColumnDef="unit">
+        <th mat-header-cell *matHeaderCellDef>Unit</th>
+        <td mat-cell *matCellDef="let p">{{ p.unit }}</td>
+      </ng-container>
+      <ng-container matColumnDef="actualPrice">
+        <th mat-header-cell *matHeaderCellDef>Actual Price</th>
+        <td mat-cell *matCellDef="let p">{{ p.actualPrice }}</td>
+      </ng-container>
+      <ng-container matColumnDef="sellingPrice">
+        <th mat-header-cell *matHeaderCellDef>Price</th>
+        <td mat-cell *matCellDef="let p">{{ p.sellingPrice }}</td>
+      </ng-container>
 
-              <button mat-icon-button color="warn" matTooltip="Delete" (click)="delete(p)">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
-          </td>
-        </ng-container>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="actions-header">
+          Actions
+        </th>
+        <td mat-cell *matCellDef="let p" class="actions-cell">
+          <div class="action-buttons">
+            <button mat-icon-button color="primary" (click)="edit(p)">
+              <mat-icon>edit</mat-icon>
+            </button>
+      
+            <button mat-icon-button color="warn" (click)="delete(p)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+      
 
-        <!-- Rows -->
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 
-      </table>
-    </div>
+    </table>
 
-    <!-- 📄 Pagination (Server-side) -->
-    <mat-paginator [length]="totalCount" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons
+    <mat-paginator [length]="totalCount" [pageSize]="pageSize" [pageSizeOptions]="[5,10,25]"
       (page)="onPageChange($event)">
     </mat-paginator>
 
