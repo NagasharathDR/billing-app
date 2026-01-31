@@ -102,24 +102,47 @@ export class BillingComponent implements OnInit {
     const product: Product = this.billForm.value.product;
     const qty = this.billForm.value.qty;
     const rate = this.billForm.value.rate;
-
-    const item: BillItem = {
-      productId: product.id,
-      name: product.name,
-      code: product.code,
-      unit: product.unit,
-      qty: qty,
-      price: rate,               // ✅ OVERRIDDEN RATE
-      total: rate * qty
-    };
-
-    this.billItems.push(item);
-
+  
+    // 🔍 Find existing item with SAME product + SAME rate
+    const existingItem = this.billItems.find(
+      i => i.productId === product.id && i.price === rate
+    );
+  
+    if (existingItem) {
+      // ✅ MERGE
+      existingItem.qty += qty;
+      existingItem.total = existingItem.qty * existingItem.price;
+    } else {
+      // ➕ ADD NEW ROW
+      const item: BillItem = {
+        productId: product.id,
+        name: product.name,
+        code: product.code,
+        unit: product.unit,
+        qty: qty,
+        price: rate,               // ✅ OVERRIDDEN RATE
+        total: rate * qty
+      };
+  
+      this.billItems.push(item);
+    }
+  
+    // 🔢 Recalculate grand total
+    //this.recalculateGrandTotal();
+  
+    // 🔄 Reset form (keep UX smooth)
     this.billForm.reset({
       qty: 1,
       rate: 0
     });
   }
+  
+  // recalculateGrandTotal() {
+  //   this.grandTotal = this.billItems.reduce(
+  //     (sum, item) => sum + item.total,
+  //     0
+  //   );
+  // }
 
   updateProductPrice() {
     const newPrice = this.billForm.value.rate;
