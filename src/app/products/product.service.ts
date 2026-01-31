@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Product } from './product.model';
+import { Observable } from 'rxjs/internal/Observable';
 
 @Injectable({
   providedIn: 'root'
@@ -12,9 +13,9 @@ export class ProductService {
 
   constructor(private http: HttpClient) {}
 
-  // getProducts() {
-  //   return this.http.get<Product[]>(`${this.apiUrl}/products`);
-  // }
+  getAllProducts(): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/all`);
+  }
 
   addProduct(product: Omit<Product, 'id'>) {
     return this.http.post(`${this.apiUrl}/products`, product);
@@ -27,7 +28,7 @@ export class ProductService {
   deleteProduct(id: number) {
     return this.http.delete(`${this.apiUrl}/products/${id}`);
   }
-  
+
   getProducts(
     page: number,
     pageSize: number,
@@ -41,5 +42,22 @@ export class ProductService {
       }
     });
   }
-  
+
+  searchProducts(term: string): Observable<PagedResult<Product>> {
+    return this.http.get<PagedResult<Product>>(
+      `${this.apiUrl}/products?page=1&pageSize=20&search=${encodeURIComponent(term)}`
+    );
+  }
+
+  updateProductPrice(productId: number, price: number) {
+    return this.http.put(
+      `${this.apiUrl}/products/${productId}/price`,
+      { sellingPrice: price }
+    );
+  }
+}
+
+export interface PagedResult<T> {
+  items: T[];
+  totalCount: number;
 }

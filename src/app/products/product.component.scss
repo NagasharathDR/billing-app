@@ -30,4 +30,35 @@
     gap: 12px;
     align-items: center;
   }
+  /* =========================
+   MOBILE TABLE FIX
+   ========================= */
+
+/* Horizontal scroll only for table */
+.table-scroll {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Prevent Material table from shrinking */
+  table {
+    min-width: 720px; /* important for mobile */
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  /* Improve tap readability on mobile */
+  @media (max-width: 768px) {
+    th,
+    td {
+      padding: 8px 12px;
+      white-space: nowrap; /* keep columns in one line */
+    }
+  
+    .actions-header,
+    .actions-cell {
+      text-align: center;
+    }
+  }
   

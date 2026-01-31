@@ -1,1 +1,140 @@
-<p>billing works!</p>
+<div class="billing-container">
+
+  <!-- LEFT PANEL -->
+  <mat-card class="billing-left">
+    <mat-card-title>Billing</mat-card-title>
+
+    <form [formGroup]="billForm" class="entry-form">
+
+      <!-- PRODUCT -->
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Product</mat-label>
+        <input matInput formControlName="product" [matAutocomplete]="auto" />
+
+        <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayProduct"
+          (optionSelected)="onProductSelected($event.option.value)">
+          <mat-option *ngFor="let p of filteredProducts$ | async" [value]="p">
+            {{ p.name }} ({{ p.code }})
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+
+      <!-- UNIT -->
+      <mat-form-field appearance="outline">
+        <mat-label>Unit</mat-label>
+        <input matInput formControlName="unit" readonly />
+      </mat-form-field>
+
+      <!-- QTY -->
+      <mat-form-field appearance="outline">
+        <mat-label>Qty</mat-label>
+        <input matInput type="number" formControlName="qty" />
+      </mat-form-field>
+
+      <!-- RATE + UPDATE DB PRICE -->
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Rate</mat-label>
+
+        <input matInput type="number" formControlName="rate" />
+
+        <!-- UPDATE DB PRICE ICON -->
+        <button mat-icon-button matSuffix color="primary" matTooltip="Update price in database" type="button"
+          (click)="updateProductPrice()">
+          <mat-icon>sync</mat-icon>
+        </button>
+      </mat-form-field>
+
+
+      <!-- ADD -->
+      <button mat-raised-button color="primary" class="add-btn" type="button" (click)="addItem()"
+        [disabled]="billForm.invalid">
+        ADD
+      </button>
+
+      <!-- ADD PRODUCT -->
+      <button mat-stroked-button type="button" (click)="openAddProductPopup()">
+        + Add Product
+      </button>
+
+    </form>
+  </mat-card>
+
+  <!-- RIGHT PANEL -->
+  <mat-card class="billing-right">
+    <mat-card-title>Bill Items</mat-card-title>
+  
+    <mat-card-content>
+  
+      <table class="bill-table">
+        <!-- 🔒 LOCK COLUMN WIDTHS -->
+        <colgroup>
+          <col style="width: 30%" />  <!-- Name -->
+          <col style="width: 20%" />  <!-- Qty -->
+          <col style="width: 20%" />  <!-- Rate -->
+          <col style="width: 20%" />  <!-- Total -->
+          <col style="width: 10%" />  <!-- Actions -->
+        </colgroup>
+  
+        <thead>
+          <tr>
+            <th class="center">Name</th>
+            <th class="center">Qty</th>
+            <th class="center">Rate</th>
+            <th class="center">Total</th>
+            <th class="center">Actions</th>
+          </tr>
+        </thead>
+  
+        <tbody>
+          <tr *ngFor="let item of billItems; let i = index">
+  
+            <!-- NAME -->
+            <td class="center">{{ item.name }}</td>
+  
+            <!-- QTY -->
+            <td class="center">
+              <input
+                type="number"
+                min="1"
+                [value]="item.qty"
+                (change)="onQtyChange(i, $event)"
+                class="inline-input" />
+            </td>
+  
+            <!-- RATE -->
+            <td class="center">
+              <input
+                type="number"
+                min="0"
+                [value]="item.price"
+                (change)="onRateChange(i, $event)"
+                class="inline-input right-text" />
+            </td>
+  
+            <!-- TOTAL -->
+            <td class="center">{{ item.total }}</td>
+  
+            <!-- ACTION -->
+            <td class="center">
+              <button
+                mat-icon-button
+                color="warn"
+                matTooltip="Remove item"
+                (click)="removeItem(i)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+  
+          </tr>
+        </tbody>
+      </table>
+  
+      <!-- GRAND TOTAL -->
+      <div class="grand-total">
+        Total: {{ getGrandTotal() }}
+      </div>
+  
+    </mat-card-content>
+  </mat-card>
+  
+</div>

@@ -1,0 +1,24 @@
+/* Dialog body spacing */
+.dialog-body {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+/* Make fields breathe */
+mat-form-field {
+  width: 100%;
+}
+
+/* Actions spacing */
+.dialog-actions {
+  padding: 16px 24px;
+  border-top: 1px solid #eee;
+}
+
+/* Dialog width consistency */
+:host ::ng-deep .mat-dialog-container {
+  padding: 24px;
+}

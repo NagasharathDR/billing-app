@@ -1,0 +1,171 @@
+/* =========================
+   MAIN LAYOUT
+   ========================= */
+.billing-container {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* =========================
+     LEFT PANEL
+     ========================= */
+.billing-left {
+  padding: 16px;
+  /* 🔥 FIX: space from border */
+}
+
+.entry-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.entry-form .full {
+  grid-column: span 2;
+}
+
+/* ADD button */
+.add-btn {
+  grid-column: span 2;
+  height: 44px;
+  margin-top: 6px;
+}
+
+/* Add Product button */
+.entry-form button[type="button"] {
+  grid-column: span 2;
+}
+
+/* Force material fields to align */
+mat-form-field {
+  width: 100%;
+}
+
+/* =========================
+     RIGHT PANEL
+     ========================= */
+.billing-right {
+  min-height: 240px;
+  /* 🔥 FIX: visible area */
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================
+     AUTOCOMPLETE PANEL WIDTH
+     ========================= */
+.cdk-overlay-pane {
+  max-width: 360px !important;
+}
+
+.bill-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.bill-table th,
+.bill-table td {
+  padding: 10px 8px;
+  vertical-align: middle;
+  line-height: 1.4;
+}
+
+// .bill-table th {
+//   font-weight: 600;
+//   color: #444;
+// }
+
+.left { text-align: left; }
+.center { text-align: center; }
+.right { text-align: right; }
+
+
+
+
+// .center-input {
+//   text-align: center;
+// }
+
+// .right-input {
+//   text-align: right;
+// }
+
+// .left {
+//   text-align: left;
+// }
+
+// .center {
+//   text-align: center;
+// }
+
+// .right {
+//   text-align: right;
+// }
+
+.inline-input {
+  width: 80px;
+  height: 32px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.right-text {
+  text-align: right;
+}
+
+/* Total */
+.grand-total {
+  margin-top: 12px;
+  text-align: right;
+  font-weight: 600;
+}
+
+.empty-bill {
+  padding: 12px;
+  color: #888;
+}
+
+
+.price-sync-btn {
+  justify-self: end;
+  margin-top: -6px;
+}
+
+/* Rate + refresh icon inline */
+.rate-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rate-field {
+  flex: 1;
+}
+
+/* Keep icon aligned with input */
+.rate-wrapper button {
+  margin-top: -6px; // aligns with mat-form-field
+}
+
+
+/* =========================
+     MOBILE
+     ========================= */
+@media (max-width: 768px) {
+  .billing-container {
+    grid-template-columns: 1fr;
+  }
+
+  .entry-form {
+    grid-template-columns: 1fr;
+  }
+
+  .entry-form .full,
+  .add-btn {
+    grid-column: span 1;
+  }
+}
