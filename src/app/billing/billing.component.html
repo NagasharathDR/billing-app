@@ -2,9 +2,41 @@
 
   <!-- LEFT PANEL -->
   <mat-card class="billing-left">
-    <mat-card-title>Billing</mat-card-title>
+    <mat-card-title>Customer</mat-card-title>
 
     <form [formGroup]="billForm" class="entry-form">
+
+      <!-- CUSTOMER PHONE -->
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Phone</mat-label>
+        <input matInput formControlName="customerPhone" [matAutocomplete]="custAuto" />
+
+        <mat-autocomplete #custAuto="matAutocomplete" [displayWith]="displayCustomer"
+          (optionSelected)="onCustomerSelected($event.option.value)">
+          <mat-option *ngFor="let c of filteredCustomers$ | async" [value]="c">
+            {{ c.phone }} - {{ c.name }}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Name</mat-label>
+
+        <input matInput formControlName="customerName" />
+
+        <!-- ✅ ICON STAYS INSIDE FIELD -->
+        <button mat-icon-button matSuffix color="primary" matTooltip="Edit customer" *ngIf="isExistingCustomer"
+          (click)="openEditCustomer()">
+          <mat-icon>edit</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Address</mat-label>
+        <textarea matInput rows="2" formControlName="customerAddress"></textarea>
+      </mat-form-field>
+
+      <mat-card-title>Billing</mat-card-title>
 
       <!-- PRODUCT -->
       <mat-form-field appearance="outline" class="full">
@@ -19,40 +51,30 @@
         </mat-autocomplete>
       </mat-form-field>
 
-      <!-- UNIT -->
       <mat-form-field appearance="outline">
         <mat-label>Unit</mat-label>
         <input matInput formControlName="unit" readonly />
       </mat-form-field>
 
-      <!-- QTY -->
       <mat-form-field appearance="outline">
         <mat-label>Qty</mat-label>
         <input matInput type="number" formControlName="qty" />
       </mat-form-field>
 
-      <!-- RATE + UPDATE DB PRICE -->
       <mat-form-field appearance="outline" class="full">
         <mat-label>Rate</mat-label>
-
         <input matInput type="number" formControlName="rate" />
-
-        <!-- UPDATE DB PRICE ICON -->
-        <button mat-icon-button matSuffix color="primary" matTooltip="Update price in database" type="button"
-          (click)="updateProductPrice()">
+        <button mat-icon-button matSuffix (click)="updateProductPrice()">
           <mat-icon>sync</mat-icon>
         </button>
       </mat-form-field>
 
-
-      <!-- ADD -->
-      <button mat-raised-button color="primary" class="add-btn" type="button" (click)="addItem()"
-        [disabled]="billForm.invalid">
+      <button mat-raised-button color="primary" class="full" (click)="addItem()"
+        [disabled]="!selectedProduct || billForm.invalid">
         ADD
       </button>
 
-      <!-- ADD PRODUCT -->
-      <button mat-stroked-button type="button" (click)="openAddProductPopup()">
+      <button mat-stroked-button class="full" (click)="openAddProductPopup()">
         + Add Product
       </button>
 
@@ -60,81 +82,90 @@
   </mat-card>
 
   <!-- RIGHT PANEL -->
+  @if(billItems.length)
+  {
   <mat-card class="billing-right">
     <mat-card-title>Bill Items</mat-card-title>
-  
-    <mat-card-content>
-  
-      <table class="bill-table">
-        <!-- 🔒 LOCK COLUMN WIDTHS -->
-        <colgroup>
-          <col style="width: 30%" />  <!-- Name -->
-          <col style="width: 20%" />  <!-- Qty -->
-          <col style="width: 20%" />  <!-- Rate -->
-          <col style="width: 20%" />  <!-- Total -->
-          <col style="width: 10%" />  <!-- Actions -->
-        </colgroup>
-  
-        <thead>
-          <tr>
-            <th class="center">Name</th>
-            <th class="center">Qty</th>
-            <th class="center">Rate</th>
-            <th class="center">Total</th>
-            <th class="center">Actions</th>
-          </tr>
-        </thead>
-  
-        <tbody>
-          <tr *ngFor="let item of billItems; let i = index">
-  
-            <!-- NAME -->
-            <td class="center">{{ item.name }}</td>
-  
-            <!-- QTY -->
-            <td class="center">
-              <input
-                type="number"
-                min="1"
-                [value]="item.qty"
-                (change)="onQtyChange(i, $event)"
-                class="inline-input" />
-            </td>
-  
-            <!-- RATE -->
-            <td class="center">
-              <input
-                type="number"
-                min="0"
-                [value]="item.price"
-                (change)="onRateChange(i, $event)"
-                class="inline-input right-text" />
-            </td>
-  
-            <!-- TOTAL -->
-            <td class="center">{{ item.total }}</td>
-  
-            <!-- ACTION -->
-            <td class="center">
-              <button
-                mat-icon-button
-                color="warn"
-                matTooltip="Remove item"
-                (click)="removeItem(i)">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </td>
-  
-          </tr>
-        </tbody>
-      </table>
-  
-      <!-- GRAND TOTAL -->
-      <div class="grand-total">
-        Total: {{ getGrandTotal() }}
+
+    <div class="bill-header">
+
+      <div class="bill-no">
+        <strong>Bill No:</strong> {{ billNo }}
       </div>
-  
-    </mat-card-content>
+
+      <form [formGroup]="billForm">
+
+        <mat-form-field appearance="outline" class="bill-date">
+          <mat-label>Bill Date</mat-label>
+
+          <input matInput [matDatepicker]="picker" formControlName="billDate" />
+
+          <mat-datepicker-toggle matSuffix [for]="picker">
+          </mat-datepicker-toggle>
+
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+
+      </form>
+
+
+    </div>
+
+    <table class="bill-table">
+
+      <colgroup>
+        <col style="width: 30%" /> <!-- Name -->
+        <col style="width: 20%" /> <!-- Qty -->
+        <col style="width: 20%" /> <!-- Rate -->
+        <col style="width: 20%" /> <!-- Total -->
+        <col style="width: 10%" /> <!-- Actions -->
+      </colgroup>
+
+      <thead>
+        <tr>
+          <th class="center">Name</th>
+          <th class="center">Qty</th>
+          <th class="center">Rate</th>
+          <th class="center">Total</th>
+          <th class="center">Actions</th>
+        </tr>
+      </thead>
+
+      <tr *ngFor="let item of billItems; let i = index">
+        <td class="center">{{ item.name }}</td>
+        <td class="center"><input type="number" [value]="item.qty" (change)="onQtyChange(i,$event)" /></td>
+        <td class="center"><input type="number" [value]="item.price" (change)="onRateChange(i,$event)" /></td>
+        <td class="center">{{ item.total }}</td>
+        <td class="center">
+          <button mat-icon-button color="warn" (click)="removeItem(i)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </tr>
+    </table>
+
+    <div class="grand-total">
+      Total: {{ getGrandTotal() }}
+    </div>
+
+    <div class="bill-actions">
+      <button mat-raised-button color="primary" (click)="saveBill()" [disabled]="isSaving || billItems.length === 0">
+        Save & Print
+      </button>
+    </div>
   </mat-card>
-  
+  }
+  @else {
+  <mat-card class="billing-right">
+    <mat-card-title>Bill Items</mat-card-title>
+    <div class="empty-bill">
+      <mat-icon class="empty-icon">receipt_long</mat-icon>
+      <div class="empty-title">No Products Added</div>
+      <div class="empty-subtitle">
+        Search and add products from the left panel
+      </div>
+    </div>
+  </mat-card>
+  }
+
 </div>

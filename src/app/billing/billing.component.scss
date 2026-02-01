@@ -151,6 +151,51 @@ mat-form-field {
   margin-top: -6px; // aligns with mat-form-field
 }
 
+/* =========================
+   EMPTY BILL STATE
+   ========================= */
+   .empty-bill {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  
+    text-align: center;
+    color: #666;
+    padding: 24px;
+  }
+  
+  .empty-icon {
+    font-size: 56px;
+    width: 56px;
+    height: 56px;
+    color: #9aa7e0; /* soft cornflower/blue tone */
+    margin-bottom: 12px;
+  }
+  
+  .empty-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  
+  .empty-subtitle {
+    font-size: 14px;
+    color: #888;
+  }
+  
+  /* Mobile polish */
+  @media (max-width: 768px) {
+    .empty-icon {
+      font-size: 48px;
+    }
+  
+    .empty-title {
+      font-size: 16px;
+    }
+  }
+  
 
 /* =========================
      MOBILE
@@ -168,4 +213,47 @@ mat-form-field {
   .add-btn {
     grid-column: span 1;
   }
+}
+
+.bill-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.bill-no {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.bill-date {
+  width: 180px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .bill-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .bill-date {
+    width: 100%;
+  }
+}
+
+.bill-table td {
+  text-align: center;
+}
+
+.bill-table td input {
+  width: 80px;
+  padding: 4px 6px;
+  text-align: center;
+}
+
+.bill-table td:nth-child(3) input {
+  text-align: right; // Rate column
 }

@@ -1,6 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,15 +14,29 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatSelectModule } from '@angular/material/select';
 
 import { Observable, of } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, switchMap, map } from 'rxjs/operators';
 
 import { Product } from '../products/product.model';
 import { BillItem } from './bill-item.model';
 import { ProductService } from '../products/product.service';
 import { AddProductDialogComponent } from '../products/add-product-dialog.component';
+import { CustomerService } from '../customer/customer.service';
+import { EditCustomerDialogComponent } from '../customer/edit-customer-dialog.component';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { InvoiceService } from '../invoice/invoice.service';
+
+
+
+/* Simple Customer model */
+interface Customer {
+  id?: number;
+  phone: string;
+  name: string;
+  address?: string;
+}
 
 @Component({
   selector: 'app-billing',
@@ -25,7 +44,6 @@ import { AddProductDialogComponent } from '../products/add-product-dialog.compon
   imports: [
     CommonModule,
     ReactiveFormsModule,
-
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
@@ -33,7 +51,8 @@ import { AddProductDialogComponent } from '../products/add-product-dialog.compon
     MatAutocompleteModule,
     MatIconModule,
     MatDialogModule,
-    MatSelectModule
+    MatDatepickerModule,
+    MatNativeDateModule,
   ],
   templateUrl: './billing.component.html',
   styleUrls: ['./billing.component.scss']
@@ -41,27 +60,60 @@ import { AddProductDialogComponent } from '../products/add-product-dialog.compon
 export class BillingComponent implements OnInit {
 
   billForm!: FormGroup;
+
+  /* Product */
   filteredProducts$!: Observable<Product[]>;
   selectedProduct!: Product;
   canUpdatePrice = false;
+
+  /* Customer */
+  filteredCustomers$!: Observable<Customer[]>;
+  selectedCustomer!: Customer | null;
+  isExistingCustomer = false;
+  billNo = '';
+  billDate = new Date();
+  isSaving = false;
 
   billItems: BillItem[] = [];
 
   constructor(
     private fb: FormBuilder,
     private productService: ProductService,
+    private invoiceService: InvoiceService,
+    private customerService: CustomerService,
     private dialog: MatDialog
   ) { }
 
   ngOnInit() {
     this.billForm = this.fb.group({
+      /* CUSTOMER */
+      customerPhone: ['', Validators.required],
+      customerName: ['', Validators.required],
+      customerAddress: [''],
+
+      /* PRODUCT */
       product: ['', Validators.required],
       unit: [{ value: '', disabled: true }],
       rate: [0, [Validators.required, Validators.min(0)]],
-      qty: [1, [Validators.required, Validators.min(1)]]
+      qty: [1, [Validators.required, Validators.min(1)]],
+      billDate: [new Date(), Validators.required]
     });
 
-    /** 🔍 SERVER SIDE AUTOCOMPLETE */
+    this.loadBillNo();
+
+    /* CUSTOMER AUTOCOMPLETE */
+    this.filteredCustomers$ = this.billForm.get('customerPhone')!.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(value => {
+        if (!value || value.length < 3) {
+          return of([]);
+        }
+        return this.customerService.searchByPhone(value);
+      })
+    );
+
+    /* PRODUCT AUTOCOMPLETE (UNCHANGED) */
     this.filteredProducts$ = this.billForm.get('product')!.valueChanges.pipe(
       debounceTime(300),
       distinctUntilChanged(),
@@ -69,93 +121,106 @@ export class BillingComponent implements OnInit {
         if (typeof value !== 'string' || value.length < 2) {
           return of([]);
         }
-
-        return this.productService.searchProducts(value)
-          .pipe(
-            switchMap(res => of(res.items))
-          );
+        return this.productService.searchProducts(value).pipe(
+          map(res => res.items)
+        );
       })
     );
   }
 
-  displayProduct(product: Product): string {
-    return product ? `${product.name} (${product.code})` : '';
+  loadBillNo() {
+    this.invoiceService.getNextBillNo()
+      .subscribe(res => {this.billNo = res.billNo});
+  }
+  /* CUSTOMER */
+  onCustomerSelected(c: Customer) {
+    this.selectedCustomer = c;
+    this.isExistingCustomer = true;
+
+    this.billForm.patchValue({
+      customerName: c.name,
+      customerAddress: c.address || ''
+    });
+  }
+
+
+  saveCustomerIfNeeded() {
+    if (this.selectedCustomer) return;
+
+    const customer: Customer = {
+      phone: this.billForm.value.customerPhone,
+      name: this.billForm.value.customerName,
+      address: this.billForm.value.customerAddress
+    };
+
+    this.customerService.create(customer).subscribe(c => {
+      this.selectedCustomer = c;
+    });
+  }
+
+  /* PRODUCT */
+  displayProduct(p: Product): string {
+    return p ? `${p.name} (${p.code})` : '';
   }
 
   onProductSelected(product: Product) {
     this.selectedProduct = product;
-  
+
     this.billForm.patchValue({
       unit: product.unit,
       rate: product.sellingPrice
     });
-  
+
     this.canUpdatePrice = false;
-  
     this.billForm.get('rate')!.valueChanges.subscribe(rate => {
       this.canUpdatePrice = rate !== product.sellingPrice;
     });
   }
-  
 
   addItem() {
+    //this.saveCustomerIfNeeded();
+
     const product: Product = this.billForm.value.product;
     const qty = this.billForm.value.qty;
     const rate = this.billForm.value.rate;
-  
-    // 🔍 Find existing item with SAME product + SAME rate
+
     const existingItem = this.billItems.find(
       i => i.productId === product.id && i.price === rate
     );
-  
+
     if (existingItem) {
-      // ✅ MERGE
       existingItem.qty += qty;
       existingItem.total = existingItem.qty * existingItem.price;
     } else {
-      // ➕ ADD NEW ROW
-      const item: BillItem = {
+      this.billItems.push({
         productId: product.id,
         name: product.name,
         code: product.code,
         unit: product.unit,
-        qty: qty,
-        price: rate,               // ✅ OVERRIDDEN RATE
+        qty,
+        price: rate,
         total: rate * qty
-      };
-  
-      this.billItems.push(item);
+      });
     }
-  
-    // 🔢 Recalculate grand total
-    //this.recalculateGrandTotal();
-  
-    // 🔄 Reset form (keep UX smooth)
-    this.billForm.reset({
+
+    //this.billForm.patchValue({ qty: 1, rate: 0 });
+    this.billForm.patchValue({
+      product: '',
+      unit: '',
       qty: 1,
       rate: 0
     });
   }
-  
-  // recalculateGrandTotal() {
-  //   this.grandTotal = this.billItems.reduce(
-  //     (sum, item) => sum + item.total,
-  //     0
-  //   );
-  // }
 
   updateProductPrice() {
     const newPrice = this.billForm.value.rate;
-  
     this.productService
       .updateProductPrice(this.selectedProduct.id, newPrice)
       .subscribe(() => {
         this.selectedProduct.sellingPrice = newPrice;
         this.canUpdatePrice = false;
-        alert('Product price updated successfully');
       });
   }
-  
 
   openAddProductPopup() {
     const dialogRef = this.dialog.open(AddProductDialogComponent, {
@@ -178,34 +243,121 @@ export class BillingComponent implements OnInit {
   }
 
   onQtyChange(index: number, event: Event) {
-    const input = event.target as HTMLInputElement;
-    const value = Number(input.value);
-  
-    if (isNaN(value) || value < 1) return;
-  
+    const value = Number((event.target as HTMLInputElement).value);
+    if (value < 1) return;
     this.billItems[index].qty = value;
     this.recalculate(index);
   }
-  
+
   onRateChange(index: number, event: Event) {
-    const input = event.target as HTMLInputElement;
-    const value = Number(input.value);
-  
-    if (isNaN(value) || value < 0) return;
-  
+    const value = Number((event.target as HTMLInputElement).value);
+    if (value < 0) return;
     this.billItems[index].price = value;
     this.recalculate(index);
   }
-  
-  
-  
+
   recalculate(index: number) {
     const item = this.billItems[index];
     item.total = item.qty * item.price;
   }
-  
+
   removeItem(index: number) {
     this.billItems.splice(index, 1);
   }
+
+  ensureCustomerExists(): Promise<Customer> {
+    if (this.selectedCustomer) {
+      return Promise.resolve(this.selectedCustomer);
+    }
+
+    const customer: Customer = {
+      phone: this.billForm.value.customerPhone,
+      name: this.billForm.value.customerName,
+      address: this.billForm.value.customerAddress
+    };
+
+    return new Promise((resolve) => {
+      this.customerService.create(customer).subscribe(c => {
+        this.selectedCustomer = c;
+        resolve(c);
+      });
+    });
+  }
+
+  openEditCustomer() {
+    this.dialog.open(EditCustomerDialogComponent, {
+      width: '400px',
+      data: { ...this.selectedCustomer }
+    }).afterClosed().subscribe(updated => {
+      if (!updated) return;
+
+      this.selectedCustomer = updated;
+
+      this.billForm.patchValue({
+        customerName: updated.name,
+        customerAddress: updated.address
+      });
+    });
+  }
+
+  displayCustomer(customer: any): string {
+    return customer ? customer.phone : '';
+  }
   
+  saveBill() {
+    if (this.billItems.length === 0) {
+      alert('No items in bill');
+      return;
+    }
+  
+    this.isSaving = true;
+  
+    const payload = {
+      billDate: this.billDate,
+      customer: {
+        name: this.billForm?.value?.customerName || '',
+        phone: this.billForm?.value?.customerPhone || '',
+        address: this.billForm?.value?.customerAddress || ''
+      },
+      items: this.billItems.map(i => ({
+        productId: i.productId,
+        productName: i.name,
+        unit: i.unit,
+        qty: i.qty,
+        rate: i.price
+      }))
+    };
+  
+    
+    this.invoiceService.saveInvoice(payload)
+      .subscribe({
+        next: res => {
+          alert(`Invoice ${res.billNo} saved`);
+          this.printInvoice(res.id);
+          this.resetBilling();
+        },
+        error: () => alert('Failed to save invoice'),
+        complete: () => this.isSaving = false
+      });
+  }
+  resetBilling() {
+    this.billItems = [];
+    this.billForm.reset({ qty: 1, rate: 0 });
+    this.invoiceService.getNextBillNo()
+      .subscribe(no => {this.billNo = no.billNo});
+  }
+
+  printInvoice(invoiceId: number) {
+    this.invoiceService.printInvoice(invoiceId)
+      .subscribe(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'invoice.pdf';
+        a.click();
+        window.URL.revokeObjectURL(url);
+      });
+  }
+  
+
 }
