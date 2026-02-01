@@ -3,7 +3,7 @@
    ========================= */
 .billing-container {
   display: grid;
-  grid-template-columns: 360px 1fr;
+  grid-template-columns: 280px 1fr;
   gap: 20px;
   align-items: start;
 }
@@ -12,10 +12,20 @@
      LEFT PANEL
      ========================= */
 .billing-left {
-  padding: 16px;
+  padding: 12px;
+  // max-height: calc(100vh - 90px); /* adjust for header/top bar */
+  // overflow-y: auto;
   /* 🔥 FIX: space from border */
 }
+.billing-left h3 {
+  margin: 8px 0 6px;
+  font-size: 15px;
+}
 
+.billing-left .section {
+  display: grid;
+  gap: 6px;
+}
 .entry-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -74,37 +84,11 @@ mat-form-field {
   line-height: 1.4;
 }
 
-// .bill-table th {
-//   font-weight: 600;
-//   color: #444;
-// }
 
 .left { text-align: left; }
 .center { text-align: center; }
 .right { text-align: right; }
 
-
-
-
-// .center-input {
-//   text-align: center;
-// }
-
-// .right-input {
-//   text-align: right;
-// }
-
-// .left {
-//   text-align: left;
-// }
-
-// .center {
-//   text-align: center;
-// }
-
-// .right {
-//   text-align: right;
-// }
 
 .inline-input {
   width: 80px;
@@ -257,3 +241,4 @@ mat-form-field {
 .bill-table td:nth-child(3) input {
   text-align: right; // Rate column
 }
+

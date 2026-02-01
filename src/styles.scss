@@ -212,3 +212,44 @@ html, body {
     min-width: 24px;
   }
   
+/* =========================
+   MATERIAL DENSITY – GLOBAL
+   ========================= */
+
+   :root {
+    /* Outline fields */
+    --mdc-outlined-text-field-container-height: 42px;
+    --mdc-filled-text-field-container-height: 42px;
+  }
+  
+  /* Wrapper padding */
+  .mat-mdc-text-field-wrapper {
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+  }
+  
+  /* Input text */
+  .mat-mdc-input-element {
+    font-size: 14px !important;
+    line-height: 1.2;
+  }
+  
+  /* Floating label */
+  .mat-mdc-floating-label {
+    font-size: 12.5px !important;
+  }
+  
+  /* Error text */
+  .mat-mdc-form-field-error {
+    font-size: 11px;
+    line-height: 1.1;
+    margin-top: 2px;
+  }
+  
+  /* Reduce bottom gap reserved for hints */
+  .mat-mdc-form-field-subscript-wrapper {
+    margin-top: 2px;
+    min-height: 14px;
+  }
+  
+  

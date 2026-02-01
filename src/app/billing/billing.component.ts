@@ -16,7 +16,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { Observable, of } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap, map } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, switchMap, map, tap } from 'rxjs/operators';
 
 import { Product } from '../products/product.model';
 import { BillItem } from './bill-item.model';
@@ -75,6 +75,7 @@ export class BillingComponent implements OnInit {
   isSaving = false;
 
   billItems: BillItem[] = [];
+  lastCustomerResults: Customer[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -110,7 +111,8 @@ export class BillingComponent implements OnInit {
           return of([]);
         }
         return this.customerService.searchByPhone(value);
-      })
+      }),
+      tap(r => this.lastCustomerResults=r)
     );
 
     /* PRODUCT AUTOCOMPLETE (UNCHANGED) */
@@ -133,14 +135,17 @@ export class BillingComponent implements OnInit {
       .subscribe(res => {this.billNo = res.billNo});
   }
   /* CUSTOMER */
-  onCustomerSelected(c: Customer) {
-    this.selectedCustomer = c;
-    this.isExistingCustomer = true;
+  onCustomerSelected(phone: string) {
+    const customer = this.lastCustomerResults.find(c => c.phone === phone);
+  if (!customer) return;
 
-    this.billForm.patchValue({
-      customerName: c.name,
-      customerAddress: c.address || ''
-    });
+  this.selectedCustomer = customer;
+
+  this.billForm.patchValue({
+    customerPhone: customer.phone,
+    customerName: customer.name,
+    customerAddress: customer.address ?? ''
+  });
   }
 
 
@@ -300,10 +305,6 @@ export class BillingComponent implements OnInit {
     });
   }
 
-  displayCustomer(customer: any): string {
-    return customer ? customer.phone : '';
-  }
-  
   saveBill() {
     if (this.billItems.length === 0) {
       alert('No items in bill');

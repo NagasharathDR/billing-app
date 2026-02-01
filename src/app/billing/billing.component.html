@@ -11,9 +11,9 @@
         <mat-label>Phone</mat-label>
         <input matInput formControlName="customerPhone" [matAutocomplete]="custAuto" />
 
-        <mat-autocomplete #custAuto="matAutocomplete" [displayWith]="displayCustomer"
+        <mat-autocomplete #custAuto="matAutocomplete" 
           (optionSelected)="onCustomerSelected($event.option.value)">
-          <mat-option *ngFor="let c of filteredCustomers$ | async" [value]="c">
+          <mat-option *ngFor="let c of filteredCustomers$ | async" [value]="c.phone">
             {{ c.phone }} - {{ c.name }}
           </mat-option>
         </mat-autocomplete>
@@ -33,7 +33,7 @@
 
       <mat-form-field appearance="outline" class="full">
         <mat-label>Address</mat-label>
-        <textarea matInput rows="2" formControlName="customerAddress"></textarea>
+        <textarea matInput rows="1" formControlName="customerAddress"></textarea>
       </mat-form-field>
 
       <mat-card-title>Billing</mat-card-title>
