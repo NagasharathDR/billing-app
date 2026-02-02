@@ -1,0 +1,122 @@
+<div class="page-container">
+
+  <h2 class="page-title">Invoice List</h2>
+
+  <!-- Search -->
+  <form
+    class="search-container"
+    [formGroup]="searchForm"
+    (ngSubmit)="onSearch()">
+
+    <mat-form-field appearance="outline">
+      <mat-label>Invoice No</mat-label>
+      <input matInput formControlName="billNo">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Customer / Phone</mat-label>
+      <input
+        matInput
+        formControlName="customer"
+        [matAutocomplete]="customerAuto">
+
+      <mat-autocomplete #customerAuto="matAutocomplete">
+        <mat-option
+          *ngFor="let c of filteredCustomers$ | async"
+          [value]="c.phone">
+          {{ c.name }} — {{ c.phone }}
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Date</mat-label>
+      <input
+        matInput
+        [matDatepicker]="picker"
+        formControlName="billDate">
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit">
+      Search
+    </button>
+
+  </form>
+
+  <!-- Table -->
+  <div class="table-container">
+
+    <table mat-table [dataSource]="invoices">
+
+      <!-- Sl No -->
+      <ng-container matColumnDef="slNo">
+        <th mat-header-cell *matHeaderCellDef>Sl No</th>
+        <td mat-cell *matCellDef="let r; let i = index">
+          {{ i + 1 }}
+        </td>
+      </ng-container>
+
+      <!-- Invoice No -->
+      <ng-container matColumnDef="billNo">
+        <th mat-header-cell *matHeaderCellDef>Invoice No</th>
+        <td mat-cell *matCellDef="let r">{{ r.billNo }}</td>
+      </ng-container>
+
+      <!-- Customer -->
+      <ng-container matColumnDef="customerName">
+        <th mat-header-cell *matHeaderCellDef>Customer</th>
+        <td mat-cell *matCellDef="let r">{{ r.customerName }}</td>
+      </ng-container>
+
+      <!-- Date -->
+      <ng-container matColumnDef="billDate">
+        <th mat-header-cell *matHeaderCellDef>Date</th>
+        <td mat-cell *matCellDef="let r">
+          {{ r.billDate | date:'dd-MM-yyyy' }}
+        </td>
+      </ng-container>
+
+      <!-- Total -->
+      <ng-container matColumnDef="grandTotal">
+        <th mat-header-cell *matHeaderCellDef>Total</th>
+        <td mat-cell *matCellDef="let r">{{ r.grandTotal }}</td>
+      </ng-container>
+
+      <!-- Action -->
+      <ng-container matColumnDef="action">
+        <th mat-header-cell *matHeaderCellDef>Action</th>
+        <td mat-cell *matCellDef="let r">
+          <button mat-icon-button color="primary"
+                  (click)="editInvoice(r.id)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn"
+                  (click)="deleteInvoice(r.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+          <button mat-icon-button
+                  (click)="downloadInvoice(r.id)">
+            <mat-icon>download</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+      <tr *ngIf="invoices.length === 0">
+        <td colspan="6" class="no-data">
+          No invoices found
+        </td>
+      </tr>
+
+    </table>
+
+  </div>
+
+</div>

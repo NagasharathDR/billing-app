@@ -1,0 +1,27 @@
+.page-container {
+  max-width: 1200px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+.page-title {
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.search-container {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 1fr auto;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.no-data {
+  padding: 16px;
+  font-style: italic;
+}

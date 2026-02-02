@@ -30,4 +30,10 @@ export class CustomerService {
     );
   }
   
+  searchByNameOrPhone(query: string): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${this.baseUrl}/searchcustomer?query=${encodeURIComponent(query)}`
+    );
+  }
+
 }

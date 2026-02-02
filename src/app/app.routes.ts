@@ -17,6 +17,11 @@ export const routes: Routes = [
           import('./products/product.component').then(m => m.ProductsComponent)
       },
       {
+        path: 'invoices',
+        loadComponent: () =>
+          import('./invoice/invoice-list.component').then(m => m.InvoiceListComponent)
+      },
+      {
         path: '',
         redirectTo: 'billing',
         pathMatch: 'full'

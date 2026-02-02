@@ -27,6 +27,7 @@ import { EditCustomerDialogComponent } from '../customer/edit-customer-dialog.co
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { InvoiceService } from '../invoice/invoice.service';
+import { HttpResponse } from '@angular/common/http';
 
 
 
@@ -146,6 +147,7 @@ export class BillingComponent implements OnInit {
     customerName: customer.name,
     customerAddress: customer.address ?? ''
   });
+  this.isExistingCustomer =true;
   }
 
 
@@ -341,24 +343,49 @@ export class BillingComponent implements OnInit {
         complete: () => this.isSaving = false
       });
   }
+
   resetBilling() {
     this.billItems = [];
-    this.billForm.reset({ qty: 1, rate: 0 });
+    this.selectedProduct = undefined as any; // ✅ CRITICAL
+    this.canUpdatePrice = false;
+    this.billForm.reset({ qty: 1, rate: 0,billDate: new Date() });
     this.invoiceService.getNextBillNo()
       .subscribe(no => {this.billNo = no.billNo});
   }
 
   printInvoice(invoiceId: number) {
     this.invoiceService.printInvoice(invoiceId)
-      .subscribe(blob => {
+      .subscribe((res: HttpResponse<Blob>) => {
+  
+        const blob = res.body!;
+        const contentDisposition = res.headers.get('content-disposition');
+  
+        let fileName = 'invoice.pdf';
+  
+        if (contentDisposition) {
+          // 1️⃣ RFC 5987 (filename*)
+          const fileNameStarMatch = contentDisposition.match(/filename\*\s*=\s*UTF-8''([^;]+)/i);
+          if (fileNameStarMatch?.[1]) {
+            fileName = decodeURIComponent(fileNameStarMatch[1]);
+          } else {
+            // 2️⃣ Fallback: filename=""
+            const fileNameMatch = contentDisposition.match(/filename\s*=\s*"?([^"]+)"?/i);
+            if (fileNameMatch?.[1]) {
+              fileName = fileNameMatch[1];
+            }
+          }
+        }
+  
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'invoice.pdf';
+        a.download = fileName;
         a.click();
+  
         window.URL.revokeObjectURL(url);
       });
   }
+  
   
 
 }

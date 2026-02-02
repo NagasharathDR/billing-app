@@ -24,14 +24,10 @@ private apiUrl = environment.apiBaseUrl;
     );
   }
 
-  /** 💾 Save invoice (later use) */
-//   saveInvoice(invoice: any) {
-//     return this.http.post(this.baseUrl, invoice);
-//   }
-
-  printInvoice(id: number): Observable<Blob> {
+  printInvoice(id: number) {
     return this.http.get(`${this.baseUrl}/${id}/print`, {
-      responseType: 'blob'
+      responseType: 'blob',
+      observe: 'response'
     });
   }
 
@@ -41,18 +37,7 @@ private apiUrl = environment.apiBaseUrl;
       payload
     );
   }
-
-  
-
-//   getNextBillNo(): Observable<string> {
-//     return this.http.get('/api/invoices/next-bill-no', {
-//       responseType: 'text'
-//     });
-//   }
-
-//   printInvoice(id: number): Observable<Blob> {
-//     return this.http.get(`/api/invoices/${id}/print`, {
-//       responseType: 'blob'
-//     });
-//   }
+  searchInvoices(payload: any) {
+    return this.http.post<any[]>(`${this.baseUrl}/search`, payload);
+  }
 }
