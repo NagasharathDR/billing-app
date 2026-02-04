@@ -15,6 +15,9 @@ import { MatTableModule } from '@angular/material/table';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { InvoiceService } from './invoice.service';
 import { CustomerService } from '../customer/customer.service';
+import { BillingComponent } from '../billing/billing.component';
+import { MatDialog } from '@angular/material/dialog';
+import { HttpResponse } from '@angular/common/http';
 
 
 
@@ -59,7 +62,8 @@ export class InvoiceListComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private invoiceService: InvoiceService,
-    private customerService: CustomerService
+    private customerService: CustomerService,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -113,7 +117,71 @@ export class InvoiceListComponent implements OnInit {
     return `${yyyy}-${mm}-${dd}`;
   }
 
-  editInvoice(id: number) {}
-  deleteInvoice(id: number) {}
-  downloadInvoice(id: number) {}
+  editInvoice(id: number) {
+   const dialogRef = this.dialog.open(BillingComponent, {
+      width: '1200px',
+      maxWidth: '95vw',
+      data: {
+        mode: 'edit',
+        invoiceId: id
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
+        this.onSearch(); 
+      }
+    });
+  }
+
+  deleteInvoice(id: number) {
+    const ok = confirm('Are you sure you want to delete this invoice?');
+  
+    if (!ok) return;
+  
+    this.invoiceService.deleteInvoice(id).subscribe({
+      next: () => {
+        alert('Invoice deleted');
+        this.onSearch(); // reload list with same filters
+      },
+      error: () => {
+        alert('Failed to delete invoice');
+      }
+    });
+  }
+  
+  downloadInvoice(id: number) {
+    
+        this.invoiceService.printInvoice(id)
+          .subscribe((res: HttpResponse<Blob>) => {
+      
+            const blob = res.body!;
+            const contentDisposition = res.headers.get('content-disposition');
+      
+            let fileName = 'invoice.pdf';
+      
+            if (contentDisposition) {
+              // 1️⃣ RFC 5987 (filename*)
+              const fileNameStarMatch = contentDisposition.match(/filename\*\s*=\s*UTF-8''([^;]+)/i);
+              if (fileNameStarMatch?.[1]) {
+                fileName = decodeURIComponent(fileNameStarMatch[1]);
+              } else {
+                // 2️⃣ Fallback: filename=""
+                const fileNameMatch = contentDisposition.match(/filename\s*=\s*"?([^"]+)"?/i);
+                if (fileNameMatch?.[1]) {
+                  fileName = fileNameMatch[1];
+                }
+              }
+            }
+      
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            a.click();
+      
+            window.URL.revokeObjectURL(url);
+          });
+      }
+  
 }

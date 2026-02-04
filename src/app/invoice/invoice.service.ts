@@ -40,4 +40,15 @@ private apiUrl = environment.apiBaseUrl;
   searchInvoices(payload: any) {
     return this.http.post<any[]>(`${this.baseUrl}/search`, payload);
   }
+
+  getInvoiceById(id: number) {
+    return this.http.get<any>(`${this.baseUrl}/${id}`);
+  }
+  
+  updateInvoice(id: number, payload: any) {
+    return this.http.put<any>(`${this.baseUrl}/${id}`, payload);
+  }
+  deleteInvoice(id: number) {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
 }

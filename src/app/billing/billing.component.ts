@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, Optional } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -13,7 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 import { Observable, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, map, tap } from 'rxjs/operators';
@@ -28,6 +28,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { InvoiceService } from '../invoice/invoice.service';
 import { HttpResponse } from '@angular/common/http';
+import { MatDivider } from "@angular/material/divider";
 
 
 
@@ -54,7 +55,8 @@ interface Customer {
     MatDialogModule,
     MatDatepickerModule,
     MatNativeDateModule,
-  ],
+    MatDivider
+],
   templateUrl: './billing.component.html',
   styleUrls: ['./billing.component.scss']
 })
@@ -74,7 +76,8 @@ export class BillingComponent implements OnInit {
   billNo = '';
   billDate = new Date();
   isSaving = false;
-
+  isEditMode = false;
+  editingInvoiceId?: number;
   billItems: BillItem[] = [];
   lastCustomerResults: Customer[] = [];
 
@@ -83,7 +86,9 @@ export class BillingComponent implements OnInit {
     private productService: ProductService,
     private invoiceService: InvoiceService,
     private customerService: CustomerService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    @Optional() @Inject(MAT_DIALOG_DATA) private dialogData: any ,
+    @Optional() private dialogRef?: MatDialogRef<BillingComponent>,
   ) { }
 
   ngOnInit() {
@@ -129,6 +134,16 @@ export class BillingComponent implements OnInit {
         );
       })
     );
+
+    // 🔥 Detect edit mode (ONLY when opened from popup)
+if (this.dialogData?.mode === 'edit' && this.dialogData?.invoiceId) {
+  this.isEditMode = true;
+  this.editingInvoiceId = this.dialogData.invoiceId;
+  if (this.isEditMode) {
+    this.loadInvoiceForEdit();
+  }
+}
+
   }
 
   loadBillNo() {
@@ -183,6 +198,45 @@ export class BillingComponent implements OnInit {
       this.canUpdatePrice = rate !== product.sellingPrice;
     });
   }
+
+  private loadInvoiceForEdit() {
+    if (!this.editingInvoiceId) return;
+  
+    this.invoiceService.getInvoiceById(this.editingInvoiceId)
+      .subscribe(inv => {
+  
+        // Bill header
+        this.billNo = inv.billNo;
+  
+        // Patch customer + bill date
+        this.billForm.patchValue({
+          customerPhone: inv.customer.phone,
+          customerName: inv.customer.name,
+          customerAddress: inv.customer.address,
+          billDate: new Date(inv.billDate)
+        });
+  
+        // 🔒 Lock customer fields
+        this.billForm.get('customerPhone')?.disable();
+        this.billForm.get('customerName')?.disable();
+        this.billForm.get('customerAddress')?.disable();
+  
+        this.selectedCustomer = inv.customer;
+        this.isExistingCustomer = true;
+  
+        // Items
+        this.billItems = inv.items.map((i: any) => ({
+          productId: i.productId,
+          name: i.productName,
+          code: i.code,
+          unit: i.unit,
+          qty: i.qty,
+          price: i.rate,
+          total: i.qty * i.rate
+        }));
+      });
+  }
+  
 
   addItem() {
     //this.saveCustomerIfNeeded();
@@ -312,7 +366,10 @@ export class BillingComponent implements OnInit {
       alert('No items in bill');
       return;
     }
-  
+    if (this.isEditMode && this.editingInvoiceId) {
+      this.updateExistingInvoice();
+      return;
+    }
     this.isSaving = true;
   
     const payload = {
@@ -383,6 +440,45 @@ export class BillingComponent implements OnInit {
         a.click();
   
         window.URL.revokeObjectURL(url);
+      });
+  }
+  
+  private updateExistingInvoice() {
+
+    if (this.billItems.length === 0) {
+      alert('No items in bill');
+      return;
+    }
+  
+    this.isSaving = true;
+  
+    const raw = this.billForm.getRawValue();
+  
+    const payload = {
+      billDate: raw.billDate,
+      customer: {
+        phone: raw.customerPhone,
+        name: raw.customerName,
+        address: raw.customerAddress
+      },
+      items: this.billItems.map(i => ({
+        productId: i.productId,
+        productName: i.name,
+        unit: i.unit,
+        qty: i.qty,
+        rate: i.price
+      }))
+    };
+  
+    this.invoiceService.updateInvoice(this.editingInvoiceId!, payload)
+      .subscribe({
+        next: res => {
+          alert(`Invoice ${res.billNo} updated`);
+          this.printInvoice(res.id);   // ✅ reuse existing print
+          this.dialogRef?.close(true); 
+        },
+        error: () => alert('Failed to update invoice'),
+        complete: () => this.isSaving = false
       });
   }
   

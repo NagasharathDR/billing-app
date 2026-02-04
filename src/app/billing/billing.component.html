@@ -1,4 +1,4 @@
-<div class="billing-container">
+<div class="billing-container" [class.dialog-mode]="isEditMode">
 
   <!-- LEFT PANEL -->
   <mat-card class="billing-left">
@@ -6,10 +6,11 @@
 
     <form [formGroup]="billForm" class="entry-form">
 
+      @if(!isEditMode){
       <!-- CUSTOMER PHONE -->
       <mat-form-field appearance="outline" class="full">
         <mat-label>Phone</mat-label>
-        <input matInput formControlName="customerPhone" [matAutocomplete]="custAuto" />
+        <input matInput formControlName="customerPhone" [matAutocomplete]="custAuto" [readonly]="isEditMode"/>
 
         <mat-autocomplete #custAuto="matAutocomplete" 
           (optionSelected)="onCustomerSelected($event.option.value)">
@@ -22,19 +23,48 @@
       <mat-form-field appearance="outline" class="full">
         <mat-label>Name</mat-label>
 
-        <input matInput formControlName="customerName" />
+        <input matInput formControlName="customerName" [readonly]="isEditMode"/>
 
         <!-- ✅ ICON STAYS INSIDE FIELD -->
         <button mat-icon-button matSuffix color="primary" matTooltip="Edit customer" *ngIf="isExistingCustomer"
-          (click)="openEditCustomer()">
+          (click)="openEditCustomer()" [disabled]="isEditMode">
           <mat-icon>edit</mat-icon>
         </button>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full">
         <mat-label>Address</mat-label>
-        <textarea matInput rows="1" formControlName="customerAddress"></textarea>
+        <textarea matInput rows="1" formControlName="customerAddress" [readonly]="isEditMode"></textarea>
       </mat-form-field>
+
+      <!-- Divider between Customer & Billing -->
+     <!-- <mat-divider class="customer-billing-divider"></mat-divider> -->
+    }
+    @else {
+      <div class="customer-readonly-compact">
+    
+        <div class="cr-row">
+          <!-- <span class="cr-label">Phone</span> -->
+          <span class="cr-value">{{ billForm.get('customerPhone')?.value }}</span>
+        <!-- </div>
+    
+        <div class="cr-row"> -->
+          <!-- <span class="cr-label">Name</span> -->
+          <span class="cr-value">{{ billForm.get('customerName')?.value }}</span>
+        </div>
+    
+        <div class="cr-row">
+          <!-- <span class="cr-label">Address</span> -->
+          <span class="cr-value">
+            {{ billForm.get('customerAddress')?.value || '-' }}
+          </span>
+        </div>
+    
+      </div>
+    
+      <!-- Divider MUST be AFTER customer block -->
+      <hr class="customer-billing-divider" />
+    }
 
       <mat-card-title>Billing</mat-card-title>
 

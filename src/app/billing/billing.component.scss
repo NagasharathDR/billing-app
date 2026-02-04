@@ -242,3 +242,52 @@ mat-form-field {
   text-align: right; // Rate column
 }
 
+/* Normal page mode */
+.billing-container {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 20px;
+}
+
+/* Dialog mode */
+.billing-container.dialog-mode {
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+/* Optional: smoother scroll */
+.billing-container.dialog-mode::-webkit-scrollbar {
+  width: 6px;
+}
+.customer-readonly-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-bottom: 2px; /* prevents margin collapse */
+}
+
+.cr-row {
+  display: grid;
+  // grid-template-columns: minmax(60px, auto) 1fr;
+  align-items: center;
+  font-size: 14px;
+}
+
+.cr-label {
+  color: #777;
+}
+
+.cr-value {
+  font-weight: 500;
+  color: #222;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.customer-billing-divider {
+  margin-top: 14px;
+  margin-bottom: 18px;
+  border: none;
+  border-top: 1px solid #e0e0e0;
+}
