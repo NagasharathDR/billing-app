@@ -63,6 +63,11 @@ export class ProductsComponent implements OnInit {
     this.buildForm();
     this.updateDisplayedColumns();
     this.load(1);
+    this.productForm.get('code')?.valueChanges.subscribe(() => {
+      if (this.productForm.get('code')?.hasError('duplicate')) {
+        this.productForm.get('code')?.setErrors(null);
+      }
+    });
   }
 
   // 🔹 REACTIVE FORM (FUTURE-PROOF)
@@ -116,11 +121,20 @@ export class ProductsComponent implements OnInit {
     }
 
     // 👉 ADD
-    this.service.addProduct(payload).subscribe(() => {
-      this.resetForm();
-      this.currentPage = 1;
-      this.paginator?.firstPage();
-      this.load(1);
+    this.service.addProduct(payload).subscribe({
+      next: () => {
+        this.resetForm();
+        this.currentPage = 1;
+        this.paginator?.firstPage();
+        this.load(1);
+      },
+      error: err => {
+        if (err.status === 409) {
+          this.productForm.get('code')?.setErrors({ duplicate: true });
+        } else {
+          alert('Failed to add product');
+        }
+      }
     });
   }
 

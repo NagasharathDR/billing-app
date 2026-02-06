@@ -1,150 +1,149 @@
 /* =========================
    MAIN LAYOUT
    ========================= */
-.billing-container {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 20px;
-  align-items: start;
-}
-
-/* =========================
+   .billing-container {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  
+  /* =========================
      LEFT PANEL
      ========================= */
-.billing-left {
-  padding: 12px;
-  // max-height: calc(100vh - 90px); /* adjust for header/top bar */
-  // overflow-y: auto;
-  /* 🔥 FIX: space from border */
-}
-.billing-left h3 {
-  margin: 8px 0 6px;
-  font-size: 15px;
-}
-
-.billing-left .section {
-  display: grid;
-  gap: 6px;
-}
-.entry-form {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-
-.entry-form .full {
-  grid-column: span 2;
-}
-
-/* ADD button */
-.add-btn {
-  grid-column: span 2;
-  height: 44px;
-  margin-top: 6px;
-}
-
-/* Add Product button */
-.entry-form button[type="button"] {
-  grid-column: span 2;
-}
-
-/* Force material fields to align */
-mat-form-field {
-  width: 100%;
-}
-
-/* =========================
+  .billing-left {
+    padding: 12px;
+    align-self: start; /* 🔥 PREVENT STRETCH */
+  }
+  
+  .billing-left h3 {
+    margin: 8px 0 6px;
+    font-size: 15px;
+  }
+  
+  /* =========================
+     ENTRY FORM (CRITICAL FIX)
+     ========================= */
+  .entry-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  
+    // grid-auto-rows: auto;
+    // align-items: start;
+    // align-self: start;
+    // height: auto;
+  }
+  
+  .entry-form .full {
+    grid-column: span 2;
+  }
+  
+  .entry-form mat-form-field {
+    width: 100%;
+    align-self: start;
+  }
+  
+  /* Buttons */
+  .add-btn,
+  .entry-form button[type="button"] {
+    grid-column: span 2;
+  }
+  
+  /* =========================
+     COMPACT MATERIAL INPUT
+     ========================= */
+  :host ::ng-deep .mat-mdc-form-field-infix {
+    min-height: auto;
+    padding-top: 0px;
+    padding-bottom: 0px;
+  }
+  
+  /* =========================
      RIGHT PANEL
      ========================= */
-.billing-right {
-  min-height: 240px;
-  /* 🔥 FIX: visible area */
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-}
-
-/* =========================
-     AUTOCOMPLETE PANEL WIDTH
+  .billing-right {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    min-height: 240px;
+  }
+  
+  /* =========================
+     AUTOCOMPLETE
      ========================= */
-.cdk-overlay-pane {
-  max-width: 360px !important;
-}
-
-.bill-table {
-  width: 100%;
-  table-layout: fixed;
-  border-collapse: collapse;
-}
-
-.bill-table th,
-.bill-table td {
-  padding: 10px 8px;
-  vertical-align: middle;
-  line-height: 1.4;
-}
-
-
-.left { text-align: left; }
-.center { text-align: center; }
-.right { text-align: right; }
-
-
-.inline-input {
-  width: 80px;
-  height: 32px;
-  box-sizing: border-box;
-  text-align: center;
-}
-
-.right-text {
-  text-align: right;
-}
-
-/* Total */
-.grand-total {
-  margin-top: 12px;
-  text-align: right;
-  font-weight: 600;
-}
-
-.empty-bill {
-  padding: 12px;
-  color: #888;
-}
-
-
-.price-sync-btn {
-  justify-self: end;
-  margin-top: -6px;
-}
-
-/* Rate + refresh icon inline */
-.rate-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.rate-field {
-  flex: 1;
-}
-
-/* Keep icon aligned with input */
-.rate-wrapper button {
-  margin-top: -6px; // aligns with mat-form-field
-}
-
-/* =========================
-   EMPTY BILL STATE
-   ========================= */
-   .empty-bill {
+  .cdk-overlay-pane {
+    max-width: 360px !important;
+  }
+  
+  /* =========================
+     BILL HEADER
+     ========================= */
+  .bill-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 12px;
+  }
+  
+  .bill-no {
+    font-weight: 600;
+    font-size: 15px;
+  }
+  
+  .bill-date {
+    width: 180px;
+  }
+  
+  /* =========================
+     BILL TABLE
+     ========================= */
+  .bill-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+  }
+  
+  .bill-table th,
+  .bill-table td {
+    padding: 10px 8px;
+    vertical-align: middle;
+    line-height: 1.4;
+  }
+  
+  .bill-table td {
+    text-align: center;
+  }
+  
+  .bill-table td input {
+    width: 80px;
+    padding: 4px 6px;
+    text-align: center;
+  }
+  
+  .bill-table td:nth-child(3) input {
+    text-align: right;
+  }
+  
+  /* =========================
+     TOTAL
+     ========================= */
+  .grand-total {
+    margin-top: 12px;
+    text-align: right;
+    font-weight: 600;
+  }
+  
+  /* =========================
+     EMPTY BILL STATE
+     ========================= */
+  .empty-bill {
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-  
     text-align: center;
     color: #666;
     padding: 24px;
@@ -154,7 +153,7 @@ mat-form-field {
     font-size: 56px;
     width: 56px;
     height: 56px;
-    color: #9aa7e0; /* soft cornflower/blue tone */
+    color: #9aa7e0;
     margin-bottom: 12px;
   }
   
@@ -169,8 +168,83 @@ mat-form-field {
     color: #888;
   }
   
-  /* Mobile polish */
+  /* =========================
+     READONLY CUSTOMER (EDIT MODE)
+     ========================= */
+  .customer-readonly-compact {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+  }
+  
+  .cr-row {
+    display: grid;
+    grid-template-columns: 70px 1fr;
+    align-items: start;
+    font-size: 14px;
+  }
+  
+  .cr-label {
+    color: #777;
+  }
+  
+  .cr-value {
+    font-weight: 500;
+    color: #222;
+    white-space: normal;      /* 🔥 SHOW FULL VALUE */
+    word-break: break-word;
+  }
+  
+  /* Divider between Customer & Billing */
+  .customer-billing-divider {
+    margin: 12px 0 16px;
+    border: none;
+    border-top: 1px solid #e0e0e0;
+  }
+  
+  /* =========================
+     DIALOG MODE SCROLL
+     ========================= */
+  .billing-container.dialog-mode {
+    max-height: calc(100vh - 120px);
+    overflow-y: visible;
+  }
+  
+  .billing-container.dialog-mode::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::ng-deep .mat-mdc-dialog-content {
+    max-height: calc(100vh - 140px);
+    overflow-y: visible !important;;
+    padding: 0;
+  }
+  /* =========================
+     MOBILE
+     ========================= */
   @media (max-width: 768px) {
+    .billing-container {
+      grid-template-columns: 1fr;
+    }
+  
+    .entry-form {
+      grid-template-columns: 1fr;
+    }
+  
+    .entry-form .full,
+    .add-btn {
+      grid-column: span 1;
+    }
+  
+    .bill-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .bill-date {
+      width: 100%;
+    }
+  
     .empty-icon {
       font-size: 48px;
     }
@@ -180,114 +254,83 @@ mat-form-field {
     }
   }
   
-
-/* =========================
-     MOBILE
-     ========================= */
-@media (max-width: 768px) {
-  .billing-container {
-    grid-template-columns: 1fr;
+  .billing-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
   }
-
-  .entry-form {
-    grid-template-columns: 1fr;
+  
+  .billing-radio {
+    display: flex;
+    gap: 12px;
+    align-items: center;
   }
-
-  .entry-form .full,
-  .add-btn {
-    grid-column: span 1;
+  
+  .billing-radio mat-radio-button {
+    margin: 0;
   }
+  /* =========================
+   RETURN SECTION (APPENDED)
+   ========================= */
+
+.return-section {
+  margin-top: 16px;
+  padding-top: 8px;
+  border-top: 1px dashed #f2bcbc;
 }
 
-.bill-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  gap: 12px;
-}
-
-.bill-no {
+.return-title {
+  color: #d32f2f;
   font-weight: 600;
-  font-size: 15px;
+  margin-bottom: 6px;
 }
 
-.bill-date {
-  width: 180px;
-}
-
-/* Mobile */
-@media (max-width: 768px) {
-  .bill-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .bill-date {
-    width: 100%;
-  }
-}
-
-.bill-table td {
-  text-align: center;
-}
-
-.bill-table td input {
-  width: 80px;
-  padding: 4px 6px;
-  text-align: center;
-}
-
-.bill-table td:nth-child(3) input {
-  text-align: right; // Rate column
-}
-
-/* Normal page mode */
-.billing-container {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 20px;
-}
-
-/* Dialog mode */
-.billing-container.dialog-mode {
-  max-height: calc(100vh - 120px);
-  overflow-y: auto;
-}
-
-/* Optional: smoother scroll */
-.billing-container.dialog-mode::-webkit-scrollbar {
-  width: 6px;
-}
-.customer-readonly-compact {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding-bottom: 2px; /* prevents margin collapse */
-}
-
-.cr-row {
-  display: grid;
-  // grid-template-columns: minmax(60px, auto) 1fr;
-  align-items: center;
-  font-size: 14px;
-}
-
-.cr-label {
-  color: #777;
-}
-
-.cr-value {
+.return {
+  color: #d32f2f;
   font-weight: 500;
-  color: #222;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+}
+.return-text {
+  color: #d32f2f;
+}
+  
+  /* =========================
+   MATERIAL FIELD HEIGHT FIX
+   ========================= */
+:host ::ng-deep .mat-mdc-form-field {
+  --mdc-outlined-text-field-container-height: 48px;
 }
 
-.customer-billing-divider {
-  margin-top: 14px;
-  margin-bottom: 18px;
-  border: none;
-  border-top: 1px solid #e0e0e0;
+/* Input container */
+:host ::ng-deep .mat-mdc-text-field-wrapper {
+  height: 48px;
+}
+
+/* Inner infix (this was missing) */
+:host ::ng-deep .mat-mdc-form-field-infix {
+  min-height: 48px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+/* Label vertical centering */
+:host ::ng-deep .mat-mdc-floating-label {
+  line-height: 1.2;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* When label floats */
+:host ::ng-deep .mat-mdc-form-field.mat-mdc-form-field-should-float
+  .mat-mdc-floating-label {
+  top: 0;
+  transform: translateY(-100%);
+}
+:host ::ng-deep .mat-mdc-dialog-content {
+  padding: 0 !important;
+}
+
+/* Prevent dialog from shrinking grid rows */
+.billing-container.dialog-mode .entry-form {
+  align-items: start;
 }

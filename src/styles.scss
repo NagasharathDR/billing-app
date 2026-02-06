@@ -252,4 +252,11 @@ html, body {
     min-height: 14px;
   }
   
-  
+  /* Fix datepicker not opening inside dialog */
+.cdk-overlay-container {
+  z-index: 2000;
+}
+
+.cdk-overlay-pane {
+  z-index: 2001;
+}

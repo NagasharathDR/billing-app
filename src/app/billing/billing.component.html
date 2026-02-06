@@ -3,7 +3,17 @@
   <!-- LEFT PANEL -->
   <mat-card class="billing-left">
     <mat-card-title>Customer</mat-card-title>
-
+     @if(isEditMode)
+     {
+     
+          <span class="cr-value">{{ billForm.get('customerName')?.value}}( {{billForm.get('customerPhone')?.value }} )</span>
+    
+        <div class="cr-row">
+          <span class="cr-value">
+            {{ billForm.get('customerAddress')?.value || '-' }}
+          </span>
+        </div>
+     }
     <form [formGroup]="billForm" class="entry-form">
 
       @if(!isEditMode){
@@ -41,32 +51,29 @@
      <!-- <mat-divider class="customer-billing-divider"></mat-divider> -->
     }
     @else {
-      <div class="customer-readonly-compact">
+      
     
-        <div class="cr-row">
-          <!-- <span class="cr-label">Phone</span> -->
-          <span class="cr-value">{{ billForm.get('customerPhone')?.value }}</span>
-        <!-- </div>
-    
-        <div class="cr-row"> -->
-          <!-- <span class="cr-label">Name</span> -->
-          <span class="cr-value">{{ billForm.get('customerName')?.value }}</span>
-        </div>
-    
-        <div class="cr-row">
-          <!-- <span class="cr-label">Address</span> -->
-          <span class="cr-value">
-            {{ billForm.get('customerAddress')?.value || '-' }}
-          </span>
-        </div>
-    
-      </div>
-    
-      <!-- Divider MUST be AFTER customer block -->
-      <hr class="customer-billing-divider" />
     }
 
-      <mat-card-title>Billing</mat-card-title>
+    <div class="billing-header full">
+      <mat-card-title class="billing-title">Billing</mat-card-title>
+    
+      <mat-radio-group
+        class="billing-radio"
+        [(ngModel)]="isReturnMode"
+        aria-label="Billing type" [ngModelOptions]="{ standalone: true }">
+    
+        <mat-radio-button [value]="false">
+          Sale
+        </mat-radio-button>
+    
+        <mat-radio-button [value]="true">
+          Return
+        </mat-radio-button>
+    
+      </mat-radio-group>
+    </div>
+    
 
       <!-- PRODUCT -->
       <mat-form-field appearance="outline" class="full">
@@ -128,7 +135,7 @@
         <mat-form-field appearance="outline" class="bill-date">
           <mat-label>Bill Date</mat-label>
 
-          <input matInput [matDatepicker]="picker" formControlName="billDate" />
+          <input matInput [matDatepicker]="picker" formControlName="billDate"/>
 
           <mat-datepicker-toggle matSuffix [for]="picker">
           </mat-datepicker-toggle>
@@ -161,21 +168,58 @@
         </tr>
       </thead>
 
-      <tr *ngFor="let item of billItems; let i = index">
+      <tr *ngFor="let item of saleItems; let i = index">
         <td class="center">{{ item.name }}</td>
         <td class="center"><input type="number" [value]="item.qty" (change)="onQtyChange(i,$event)" /></td>
         <td class="center"><input type="number" [value]="item.price" (change)="onRateChange(i,$event)" /></td>
         <td class="center">{{ item.total }}</td>
         <td class="center">
-          <button mat-icon-button color="warn" (click)="removeItem(i)">
+          <button mat-icon-button color="warn" (click)="removeItem(item)">
             <mat-icon>delete</mat-icon>
           </button>
         </td>
       </tr>
     </table>
+    @if (returnItems.length >0) {
 
+      <div class="return-section">
+    
+        <div class="return-title">Return Items</div>
+    
+        <table class="bill-table return-table">
+    
+          <colgroup>
+            <col style="width: 30%" />
+            <col style="width: 20%" />
+            <col style="width: 20%" />
+            <col style="width: 20%" />
+            <col style="width: 10%" />
+          </colgroup>
+    
+          <tr *ngFor="let item of returnItems; let i = index">
+            @if(item.isReturn){
+              <td class="center return">{{ item.name }}</td>
+              <td class="center return">{{ item.qty }}</td>
+              <td class="center return">{{ item.price }}</td>
+              <td class="center return">{{ item.total }}</td>
+              <td class="center">
+                <button mat-icon-button color="warn"
+                        (click)="removeItem(item)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            }
+          </tr>
+    
+        </table>
+    
+      </div>
+    }
     <div class="grand-total">
-      Total: {{ getGrandTotal() }}
+      <div>Sale Total: {{ getSaleTotal() }}</div>
+      <div class="return-text">Return Total: -{{ getReturnTotal() }}</div>
+      <hr />
+      <strong>Net Total: {{ getGrandTotal() }}</strong>
     </div>
 
     <div class="bill-actions">

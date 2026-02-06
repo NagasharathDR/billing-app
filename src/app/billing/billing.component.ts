@@ -14,7 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatIconModule } from '@angular/material/icon';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { Observable, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, map, tap } from 'rxjs/operators';
 
@@ -28,7 +28,9 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { InvoiceService } from '../invoice/invoice.service';
 import { HttpResponse } from '@angular/common/http';
-import { MatDivider } from "@angular/material/divider";
+import { MatRadioModule } from '@angular/material/radio';
+import { FormsModule } from '@angular/forms';
+
 
 
 
@@ -55,8 +57,11 @@ interface Customer {
     MatDialogModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatDivider
-],
+    MatRadioModule,
+    FormsModule
+  ], providers: [
+    provideNativeDateAdapter() // 🔥 REQUIRED
+  ],
   templateUrl: './billing.component.html',
   styleUrls: ['./billing.component.scss']
 })
@@ -80,6 +85,7 @@ export class BillingComponent implements OnInit {
   editingInvoiceId?: number;
   billItems: BillItem[] = [];
   lastCustomerResults: Customer[] = [];
+  isReturnMode: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -87,7 +93,7 @@ export class BillingComponent implements OnInit {
     private invoiceService: InvoiceService,
     private customerService: CustomerService,
     private dialog: MatDialog,
-    @Optional() @Inject(MAT_DIALOG_DATA) private dialogData: any ,
+    @Optional() @Inject(MAT_DIALOG_DATA) private dialogData: any,
     @Optional() private dialogRef?: MatDialogRef<BillingComponent>,
   ) { }
 
@@ -103,7 +109,15 @@ export class BillingComponent implements OnInit {
       unit: [{ value: '', disabled: true }],
       rate: [0, [Validators.required, Validators.min(0)]],
       qty: [1, [Validators.required, Validators.min(1)]],
-      billDate: [new Date(), Validators.required]
+      billDate: [new Date(), Validators.required],
+      isReturn: [false],
+    });
+
+
+    this.billForm.get('billDate')!.valueChanges.subscribe(value => {
+      console.log('Datepicker raw value:', value);
+      console.log('Type:', typeof value);
+      console.log('ISO:', value instanceof Date ? value.toISOString() : value);
     });
 
     this.loadBillNo();
@@ -118,7 +132,7 @@ export class BillingComponent implements OnInit {
         }
         return this.customerService.searchByPhone(value);
       }),
-      tap(r => this.lastCustomerResults=r)
+      tap(r => this.lastCustomerResults = r)
     );
 
     /* PRODUCT AUTOCOMPLETE (UNCHANGED) */
@@ -136,33 +150,33 @@ export class BillingComponent implements OnInit {
     );
 
     // 🔥 Detect edit mode (ONLY when opened from popup)
-if (this.dialogData?.mode === 'edit' && this.dialogData?.invoiceId) {
-  this.isEditMode = true;
-  this.editingInvoiceId = this.dialogData.invoiceId;
-  if (this.isEditMode) {
-    this.loadInvoiceForEdit();
-  }
-}
+    if (this.dialogData?.mode === 'edit' && this.dialogData?.invoiceId) {
+      this.isEditMode = true;
+      this.editingInvoiceId = this.dialogData.invoiceId;
+      if (this.isEditMode) {
+        this.loadInvoiceForEdit();
+      }
+    }
 
   }
 
   loadBillNo() {
     this.invoiceService.getNextBillNo()
-      .subscribe(res => {this.billNo = res.billNo});
+      .subscribe(res => { this.billNo = res.billNo });
   }
   /* CUSTOMER */
   onCustomerSelected(phone: string) {
     const customer = this.lastCustomerResults.find(c => c.phone === phone);
-  if (!customer) return;
+    if (!customer) return;
 
-  this.selectedCustomer = customer;
+    this.selectedCustomer = customer;
 
-  this.billForm.patchValue({
-    customerPhone: customer.phone,
-    customerName: customer.name,
-    customerAddress: customer.address ?? ''
-  });
-  this.isExistingCustomer =true;
+    this.billForm.patchValue({
+      customerPhone: customer.phone,
+      customerName: customer.name,
+      customerAddress: customer.address ?? ''
+    });
+    this.isExistingCustomer = true;
   }
 
 
@@ -201,13 +215,13 @@ if (this.dialogData?.mode === 'edit' && this.dialogData?.invoiceId) {
 
   private loadInvoiceForEdit() {
     if (!this.editingInvoiceId) return;
-  
+
     this.invoiceService.getInvoiceById(this.editingInvoiceId)
       .subscribe(inv => {
-  
+
         // Bill header
         this.billNo = inv.billNo;
-  
+
         // Patch customer + bill date
         this.billForm.patchValue({
           customerPhone: inv.customer.phone,
@@ -215,15 +229,15 @@ if (this.dialogData?.mode === 'edit' && this.dialogData?.invoiceId) {
           customerAddress: inv.customer.address,
           billDate: new Date(inv.billDate)
         });
-  
+
         // 🔒 Lock customer fields
         this.billForm.get('customerPhone')?.disable();
         this.billForm.get('customerName')?.disable();
         this.billForm.get('customerAddress')?.disable();
-  
+
         this.selectedCustomer = inv.customer;
         this.isExistingCustomer = true;
-  
+
         // Items
         this.billItems = inv.items.map((i: any) => ({
           productId: i.productId,
@@ -232,11 +246,12 @@ if (this.dialogData?.mode === 'edit' && this.dialogData?.invoiceId) {
           unit: i.unit,
           qty: i.qty,
           price: i.rate,
+          isReturn: i.isReturn,
           total: i.qty * i.rate
         }));
       });
   }
-  
+
 
   addItem() {
     //this.saveCustomerIfNeeded();
@@ -245,12 +260,21 @@ if (this.dialogData?.mode === 'edit' && this.dialogData?.invoiceId) {
     const qty = this.billForm.value.qty;
     const rate = this.billForm.value.rate;
 
+    if (!product) return;
+
+    const isReturn = this.isReturnMode;
+    const signedQty = isReturn ? -qty : qty;
+
+    // 🔥 MERGE ONLY WITH SAME MODE
     const existingItem = this.billItems.find(
-      i => i.productId === product.id && i.price === rate
+      i =>
+        i.productId === product.id &&
+        i.price === rate &&
+        i.isReturn === isReturn   // ✅ THIS IS THE KEY LINE
     );
 
     if (existingItem) {
-      existingItem.qty += qty;
+      existingItem.qty += signedQty;
       existingItem.total = existingItem.qty * existingItem.price;
     } else {
       this.billItems.push({
@@ -258,19 +282,28 @@ if (this.dialogData?.mode === 'edit' && this.dialogData?.invoiceId) {
         name: product.name,
         code: product.code,
         unit: product.unit,
-        qty,
+        qty: signedQty,
         price: rate,
-        total: rate * qty
+        total: signedQty * rate,
+        isReturn
       });
     }
 
-    //this.billForm.patchValue({ qty: 1, rate: 0 });
+    // reset product inputs
     this.billForm.patchValue({
       product: '',
       unit: '',
       qty: 1,
       rate: 0
     });
+  }
+
+  get saleItems(): BillItem[] {
+    return this.billItems.filter(i => !i.isReturn);
+  }
+
+  get returnItems(): BillItem[] {
+    return this.billItems.filter(i => i.isReturn);
   }
 
   updateProductPrice() {
@@ -290,6 +323,7 @@ if (this.dialogData?.mode === 'edit' && this.dialogData?.invoiceId) {
 
     dialogRef.afterClosed().subscribe((newProduct: Product) => {
       if (!newProduct) return;
+      this.selectedProduct = newProduct;
 
       this.billForm.patchValue({
         product: newProduct,
@@ -297,10 +331,19 @@ if (this.dialogData?.mode === 'edit' && this.dialogData?.invoiceId) {
         rate: newProduct.sellingPrice
       });
     });
+
+  }
+
+  getSaleTotal(): number {
+    return this.saleItems.reduce((sum, i) => sum + i.total, 0);
+  }
+
+  getReturnTotal(): number {
+    return this.returnItems.reduce((sum, i) => sum + Math.abs(i.total), 0);
   }
 
   getGrandTotal(): number {
-    return this.billItems.reduce((sum, i) => sum + i.total, 0);
+    return this.getSaleTotal() - this.getReturnTotal();
   }
 
   onQtyChange(index: number, event: Event) {
@@ -319,11 +362,17 @@ if (this.dialogData?.mode === 'edit' && this.dialogData?.invoiceId) {
 
   recalculate(index: number) {
     const item = this.billItems[index];
-    item.total = item.qty * item.price;
+
+    const sign = item.isReturn ? -1 : 1;
+
+    item.total = sign * item.qty * item.price;
   }
 
-  removeItem(index: number) {
-    this.billItems.splice(index, 1);
+  removeItem(item: BillItem) {
+    const idx = this.billItems.indexOf(item);
+    if (idx > -1) {
+      this.billItems.splice(idx, 1);
+    }
   }
 
   ensureCustomerExists(): Promise<Customer> {
@@ -371,9 +420,10 @@ if (this.dialogData?.mode === 'edit' && this.dialogData?.invoiceId) {
       return;
     }
     this.isSaving = true;
-  
+    this.billDate = this.billForm.get('billDate')?.value;
+
     const payload = {
-      billDate: this.billDate,
+      billDate: this.billDate.toLocaleDateString('en-CA'),
       customer: {
         name: this.billForm?.value?.customerName || '',
         phone: this.billForm?.value?.customerPhone || '',
@@ -384,11 +434,12 @@ if (this.dialogData?.mode === 'edit' && this.dialogData?.invoiceId) {
         productName: i.name,
         unit: i.unit,
         qty: i.qty,
-        rate: i.price
+        rate: i.price,
+        isReturn: i.isReturn
       }))
     };
-  
-    
+
+
     this.invoiceService.saveInvoice(payload)
       .subscribe({
         next: res => {
@@ -396,29 +447,33 @@ if (this.dialogData?.mode === 'edit' && this.dialogData?.invoiceId) {
           this.printInvoice(res.id);
           this.resetBilling();
         },
-        error: () => alert('Failed to save invoice'),
+        error: () => {
+          this.isSaving = false;
+          alert('Failed to save invoice')
+        },
         complete: () => this.isSaving = false
       });
   }
 
   resetBilling() {
+    this.isReturnMode = false;
     this.billItems = [];
     this.selectedProduct = undefined as any; // ✅ CRITICAL
     this.canUpdatePrice = false;
-    this.billForm.reset({ qty: 1, rate: 0,billDate: new Date() });
+    this.billForm.reset({ qty: 1, rate: 0, billDate: new Date() });
     this.invoiceService.getNextBillNo()
-      .subscribe(no => {this.billNo = no.billNo});
+      .subscribe(no => { this.billNo = no.billNo });
   }
 
   printInvoice(invoiceId: number) {
     this.invoiceService.printInvoice(invoiceId)
       .subscribe((res: HttpResponse<Blob>) => {
-  
+
         const blob = res.body!;
         const contentDisposition = res.headers.get('content-disposition');
-  
+
         let fileName = 'invoice.pdf';
-  
+
         if (contentDisposition) {
           // 1️⃣ RFC 5987 (filename*)
           const fileNameStarMatch = contentDisposition.match(/filename\*\s*=\s*UTF-8''([^;]+)/i);
@@ -432,30 +487,31 @@ if (this.dialogData?.mode === 'edit' && this.dialogData?.invoiceId) {
             }
           }
         }
-  
+
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         a.download = fileName;
         a.click();
-  
+
         window.URL.revokeObjectURL(url);
       });
   }
-  
+
   private updateExistingInvoice() {
 
     if (this.billItems.length === 0) {
       alert('No items in bill');
       return;
     }
-  
+
     this.isSaving = true;
-  
+
     const raw = this.billForm.getRawValue();
-  
+    this.billDate = this.billForm.get('billDate')?.value;
+
     const payload = {
-      billDate: raw.billDate,
+      billDate: this.billDate.toLocaleDateString('en-CA'),
       customer: {
         phone: raw.customerPhone,
         name: raw.customerName,
@@ -466,22 +522,23 @@ if (this.dialogData?.mode === 'edit' && this.dialogData?.invoiceId) {
         productName: i.name,
         unit: i.unit,
         qty: i.qty,
-        rate: i.price
+        rate: i.price,
+        isReturn: i.isReturn
       }))
     };
-  
+
     this.invoiceService.updateInvoice(this.editingInvoiceId!, payload)
       .subscribe({
         next: res => {
           alert(`Invoice ${res.billNo} updated`);
           this.printInvoice(res.id);   // ✅ reuse existing print
-          this.dialogRef?.close(true); 
+          this.dialogRef?.close(true);
         },
         error: () => alert('Failed to update invoice'),
         complete: () => this.isSaving = false
       });
   }
-  
-  
+
+
 
 }

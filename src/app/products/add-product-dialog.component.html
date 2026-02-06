@@ -18,6 +18,9 @@
       <mat-error *ngIf="form.get('code')?.hasError('required')">
         Required
       </mat-error>
+      <mat-error *ngIf="form.get('code')?.hasError('duplicate')">
+        Product code already exists
+      </mat-error>
     </mat-form-field>
 
     <mat-form-field appearance="outline">

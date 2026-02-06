@@ -54,8 +54,18 @@ export class AddProductDialogComponent {
       actualPrice: this.form.value.actualPrice ?? undefined
     };
 
-    this.service.addProduct(payload).subscribe(res => {
-      this.dialogRef.close(res);
+    this.service.addProduct(payload).subscribe({
+      next: res => {
+        this.dialogRef.close(res); // ✅ success
+      },
+      error: err => {
+        if (err.status === 409) {
+          // 🔥 DUPLICATE CODE
+          this.form.get('code')?.setErrors({ duplicate: true });
+        } else {
+          alert('Failed to add product');
+        }
+      }
     });
   }
 }
