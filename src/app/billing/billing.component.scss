@@ -99,32 +99,32 @@
   /* =========================
      BILL TABLE
      ========================= */
-  .bill-table {
-    width: 100%;
-    table-layout: fixed;
-    border-collapse: collapse;
-  }
+  // .bill-table {
+  //   width: 100%;
+  //   table-layout: fixed;
+  //   border-collapse: collapse;
+  // }
   
-  .bill-table th,
-  .bill-table td {
-    padding: 10px 8px;
-    vertical-align: middle;
-    line-height: 1.4;
-  }
+  // .bill-table th,
+  // .bill-table td {
+  //   padding: 10px 8px;
+  //   vertical-align: middle;
+  //   line-height: 1.4;
+  // }
   
-  .bill-table td {
-    text-align: center;
-  }
+  // .bill-table td {
+  //   text-align: center;
+  // }
   
-  .bill-table td input {
-    width: 80px;
-    padding: 4px 6px;
-    text-align: center;
-  }
+  // .bill-table td input {
+  //   width: 80px;
+  //   padding: 4px 6px;
+  //   text-align: center;
+  // }
   
-  .bill-table td:nth-child(3) input {
-    text-align: right;
-  }
+  // .bill-table td:nth-child(3) input {
+  //   text-align: right;
+  // }
   
   /* =========================
      TOTAL
@@ -366,4 +366,128 @@
     color: #666;
     margin-top: 8px;
   }
+
+//   .bill-table mat-row,
+// .bill-table mat-header-row {
+//   height: 40px;   // default is ~56px
+// }
+// .bill-table mat-cell,
+// .bill-table mat-header-cell {
+//   padding: 4px 8px;   // default is ~16px
+// }
+// .bill-table mat-form-field {
+//   width: 80px;
+//   margin: 0;
+// }
+
+// .bill-table .mat-mdc-text-field-wrapper {
+//   height: 32px;
+// }
+
+// .bill-table input.mat-mdc-input-element {
+//   padding: 4px 6px;
+//   font-size: 13px;
+// }
+// .bill-table mat-icon {
+//   font-size: 18px;
+// }
+
+// .bill-table button {
+//   min-width: 32px;
+//   height: 32px;
+// }
+
+/* =========================
+   MAT-TABLE ALIGNMENT FIX
+   ========================= */
+
+   .bill-table {
+    width: 100%;
+  }
+  
+  /* Header + Row must share same layout */
+  .bill-table mat-header-row,
+  .bill-table mat-row {
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Header cells */
+  .bill-table mat-header-cell {
+    flex: 1;
+    font-weight: 600;
+    text-align: center;
+    padding: 6px 8px;
+    box-sizing: border-box;
+  }
+  
+  /* Body cells */
+  .bill-table mat-cell {
+    flex: 1;
+    text-align: center;
+    padding: 6px 8px;
+    box-sizing: border-box;
+  }
+  
+  /* =========================
+     COLUMN WIDTH CONTROL
+     ========================= */
+  
+  /* Serial */
+  .bill-table .mat-column-sl {
+    flex: 0 0 40px;
+    max-width: 40px;
+  }
+  
+  /* Name */
+  .bill-table .mat-column-name {
+    flex: 3;
+    text-align: left;
+    padding-left: 12px;
+  }
+  
+  /* Qty */
+  .bill-table .mat-column-qty {
+    flex: 1;
+  }
+  
+  /* Rate */
+  .bill-table .mat-column-rate {
+    flex: 1;
+  }
+  
+  /* Total */
+  .bill-table .mat-column-total {
+    flex: 1;
+  }
+  
+  /* Actions */
+  .bill-table .mat-column-actions {
+    flex: 0 0 48px;
+  }
+
+  .bill-table .table-input {
+    width: 64px;
+    height: 28px;
+    padding: 2px 6px;
+    font-size: 13px;
+    text-align: center;
+    box-sizing: border-box;
+  }
+  .bill-table mat-icon {
+    font-size: 18px;
+    vertical-align: middle;
+  }
+  
+  .bill-table button {
+    min-width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .bill-table mat-header-row {
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
   

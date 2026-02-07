@@ -119,120 +119,203 @@
   </mat-card>
 
   <!-- RIGHT PANEL -->
-  @if(billItems.length)
-  {
+@if (billItems.length) {
+
   <mat-card class="billing-right">
     <mat-card-title>Bill Items</mat-card-title>
-
+  
+    <!-- HEADER -->
     <div class="bill-header">
-
       <div class="bill-no">
         <strong>Bill No:</strong> {{ billNo }}
       </div>
-
+  
       <form [formGroup]="billForm">
-
         <mat-form-field appearance="outline" class="bill-date">
           <mat-label>Bill Date</mat-label>
-
-          <input matInput [matDatepicker]="picker" formControlName="billDate"/>
-
-          <mat-datepicker-toggle matSuffix [for]="picker">
-          </mat-datepicker-toggle>
-
+          <input matInput [matDatepicker]="picker" formControlName="billDate" />
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
           <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>
-
       </form>
-
-
     </div>
-
-    <table class="bill-table">
-
-      <colgroup>
-        <col style="width: 30%" /> <!-- Name -->
-        <col style="width: 20%" /> <!-- Qty -->
-        <col style="width: 20%" /> <!-- Rate -->
-        <col style="width: 20%" /> <!-- Total -->
-        <col style="width: 10%" /> <!-- Actions -->
-      </colgroup>
-
-      <thead>
-        <tr>
-          <th class="center">Name</th>
-          <th class="center">Qty</th>
-          <th class="center">Rate</th>
-          <th class="center">Total</th>
-          <th class="center">Actions</th>
-        </tr>
-      </thead>
-
-      <tr *ngFor="let item of saleItems; let i = index">
-        <td class="center">{{ item.name }}</td>
-        <td class="center"><input type="number" [value]="item.qty" (change)="onQtyChange(i,$event)" /></td>
-        <td class="center"><input type="number" [value]="item.price" (change)="onRateChange(i,$event)" /></td>
-        <td class="center">{{ item.total }}</td>
-        <td class="center">
-          <button mat-icon-button color="warn" (click)="removeItem(item)">
+  
+    <!-- ================= SALE ITEMS TABLE ================= -->
+    @if (saleItems.length > 0) {
+    <table
+      mat-table
+      [dataSource]="saleItems"
+      class="bill-table billing-mat-table">
+  
+      <!-- SERIAL -->
+      <ng-container matColumnDef="sl">
+        <th mat-header-cell *matHeaderCellDef class="center">#</th>
+        <td mat-cell *matCellDef="let item; let i = index" class="center">
+          {{ i + 1 }}
+        </td>
+      </ng-container>
+  
+      <!-- NAME -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef class="center">Name</th>
+        <td mat-cell *matCellDef="let item" class="center">
+          {{ item.name }}
+        </td>
+      </ng-container>
+  
+      <!-- QTY -->
+      <ng-container matColumnDef="qty">
+        <th mat-header-cell *matHeaderCellDef class="center">Qty</th>
+        <td mat-cell *matCellDef="let item; let i = index" class="center">
+          <input
+            type="number"
+            class="table-input"
+            [value]="item.qty"
+            (change)="onQtyChange(i, $event)" />
+        </td>
+      </ng-container>
+  
+      <!-- RATE -->
+      <ng-container matColumnDef="rate">
+        <th mat-header-cell *matHeaderCellDef class="center">Rate</th>
+        <td mat-cell *matCellDef="let item; let i = index" class="center">
+          <input
+            type="number"
+            class="table-input"
+            [value]="item.price"
+            (change)="onRateChange(i, $event)" />
+        </td>
+      </ng-container>
+  
+      <!-- TOTAL -->
+      <ng-container matColumnDef="total">
+        <th mat-header-cell *matHeaderCellDef class="center">Total</th>
+        <td mat-cell *matCellDef="let item" class="center">
+          {{ item.total }}
+        </td>
+      </ng-container>
+  
+      <!-- ACTIONS -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="center">Actions</th>
+        <td mat-cell *matCellDef="let item" class="center">
+          <button
+            mat-icon-button
+            color="warn"
+            (click)="removeItem(item)">
             <mat-icon>delete</mat-icon>
           </button>
         </td>
-      </tr>
+      </ng-container>
+  
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
-    @if (returnItems.length >0) {
+  }
+  
+    <!-- ================= RETURN ITEMS ================= -->
+@if (returnItems.length > 0) {
 
-      <div class="return-section">
-    
-        <div class="return-title">Return Items</div>
-    
-        <table class="bill-table return-table">
-    
-          <colgroup>
-            <col style="width: 30%" />
-            <col style="width: 20%" />
-            <col style="width: 20%" />
-            <col style="width: 20%" />
-            <col style="width: 10%" />
-          </colgroup>
-    
-          <tr *ngFor="let item of returnItems; let i = index">
-            @if(item.isReturn){
-              <td class="center return">{{ item.name }}</td>
-              <td class="center return">{{ item.qty }}</td>
-              <td class="center return">{{ item.price }}</td>
-              <td class="center return">{{ item.total }}</td>
-              <td class="center">
-                <button mat-icon-button color="warn"
-                        (click)="removeItem(item)">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </td>
-            }
-          </tr>
-    
-        </table>
-    
-      </div>
-    }
-
-    
-    
+  <div class="return-section">
+    <div class="return-title">Return Items</div>
+  
+    <table
+      mat-table
+      [dataSource]="returnItems"
+      class="bill-table billing-mat-table return-table">
+  
+      <!-- SERIAL -->
+      <ng-container matColumnDef="sl">
+        <th mat-header-cell *matHeaderCellDef>#</th>
+        <td mat-cell *matCellDef="let item; let i = index" class="return">
+          R{{ i + 1 }}
+        </td>
+      </ng-container>
+  
+      <!-- NAME -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let item" class="return">
+          {{ item.name }}
+        </td>
+      </ng-container>
+  
+      <!-- QTY -->
+      <ng-container matColumnDef="qty">
+        <th mat-header-cell *matHeaderCellDef>Qty</th>
+        <td mat-cell *matCellDef="let item" class="return">
+          {{ item.qty }}
+        </td>
+      </ng-container>
+  
+      <!-- RATE -->
+      <ng-container matColumnDef="rate">
+        <th mat-header-cell *matHeaderCellDef>Rate</th>
+        <td mat-cell *matCellDef="let item" class="return">
+          {{ item.price }}
+        </td>
+      </ng-container>
+  
+      <!-- TOTAL -->
+      <ng-container matColumnDef="total">
+        <th mat-header-cell *matHeaderCellDef>Total</th>
+        <td mat-cell *matCellDef="let item" class="return">
+          {{ item.total }}
+        </td>
+      </ng-container>
+  
+      <!-- ACTIONS -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let item">
+          <button
+            mat-icon-button
+            color="warn"
+            (click)="removeItem(item)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+  
+      <!-- 🔑 HEADER ROW (HIDDEN but REQUIRED for alignment) -->
+      <tr
+        mat-header-row
+        *matHeaderRowDef="displayedColumns"
+        class="return-header-hidden">
+      </tr>
+  
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumns;">
+      </tr>
+  
+    </table>
+  </div>
+  }
+  
+  
+    <!-- ================= TOTALS ================= -->
     <div class="grand-total">
       <div>Sale Total: {{ getSaleTotal() }}</div>
       <div class="return-text">Return Total: -{{ getReturnTotal() }}</div>
       <hr />
       <strong>Net Total: {{ getGrandTotal() }}</strong>
     </div>
-
+  
+    <!-- ================= ACTIONS ================= -->
     <div class="bill-actions">
-      <button mat-raised-button color="primary" (click)="saveBill()" [disabled]="isSaving ||isPrinting|| billItems.length === 0">
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="saveBill()"
+        [disabled]="isSaving || isPrinting || billItems.length === 0">
         Save & Print
       </button>
     </div>
   </mat-card>
-  }
-  @else {
+  
+  } @else {
+  
   <mat-card class="billing-right">
     <mat-card-title>Bill Items</mat-card-title>
     <div class="empty-bill">
@@ -243,7 +326,10 @@
       </div>
     </div>
   </mat-card>
+  
   }
+  
+  <!-- ================= PRINT OVERLAY ================= -->
   <div *ngIf="isPrinting" class="print-overlay">
     <mat-card class="print-card">
       <div class="print-title">Generating Invoice…</div>
@@ -258,4 +344,5 @@
       </div>
     </mat-card>
   </div>
+  
 </div>

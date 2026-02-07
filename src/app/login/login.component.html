@@ -1,0 +1,44 @@
+<div class="login-screen">
+  <mat-card class="login-card">
+
+    <div class="login-header">
+      <!-- <mat-icon class="login-icon">receipt_long</mat-icon> -->
+      <h1>NNK Ledger Pro</h1>
+      <p>Sign in to continue</p>
+    </div>
+
+    <form (ngSubmit)="login()" class="login-form">
+
+      <mat-form-field appearance="outline">
+        <mat-label>Username</mat-label>
+        <input
+          matInput
+          name="username"
+          [(ngModel)]="model.username"
+          required>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Password</mat-label>
+        <input
+          matInput
+          type="password"
+          name="password"
+          [(ngModel)]="model.password"
+          required>
+      </mat-form-field>
+
+      <div class="error" *ngIf="error">{{ error }}</div>
+
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [disabled]="loading">
+        {{ loading ? 'Signing in…' : 'Login' }}
+      </button>
+
+    </form>
+
+  </mat-card>
+</div>

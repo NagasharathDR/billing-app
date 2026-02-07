@@ -1,11 +1,12 @@
 import { Component, HostListener } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -27,7 +28,8 @@ export class MainLayoutComponent {
   isCollapsed = false;
   isOpened = true;
 
-  constructor() {
+  constructor(private auth: AuthService,
+    private router: Router) {
     this.updateScreen();
   }
 
@@ -60,5 +62,10 @@ export class MainLayoutComponent {
   get contentMargin(): string {
     if (this.isMobile) return '0px';
     return this.isCollapsed ? '72px' : '260px';
+  }
+
+  logout() {
+    this.auth.logout();
+    this.router.navigate(['/login']);
   }
 }

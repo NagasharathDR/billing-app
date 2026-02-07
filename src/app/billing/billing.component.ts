@@ -30,6 +30,7 @@ import { InvoiceService } from '../invoice/invoice.service';
 import { HttpResponse } from '@angular/common/http';
 import { MatRadioModule } from '@angular/material/radio';
 import { FormsModule } from '@angular/forms';
+import { MatTableModule } from '@angular/material/table';
 
 
 
@@ -59,7 +60,8 @@ interface Customer {
     MatNativeDateModule,
     MatRadioModule,
     FormsModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatTableModule
   ], providers: [
     provideNativeDateAdapter() // 🔥 REQUIRED
   ],
@@ -89,6 +91,15 @@ export class BillingComponent implements OnInit {
   billItems: BillItem[] = [];
   lastCustomerResults: Customer[] = [];
   isReturnMode: boolean = false;
+  displayedColumns: string[] = [
+    'sl',
+    'name',
+    'qty',
+    'rate',
+    'total',
+    'actions'
+  ];
+  
 
   constructor(
     private fb: FormBuilder,
