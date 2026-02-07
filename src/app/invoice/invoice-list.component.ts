@@ -18,6 +18,8 @@ import { CustomerService } from '../customer/customer.service';
 import { BillingComponent } from '../billing/billing.component';
 import { MatDialog } from '@angular/material/dialog';
 import { HttpResponse } from '@angular/common/http';
+import { MatCard } from "@angular/material/card";
+import { MatProgressBar } from "@angular/material/progress-bar";
 
 
 
@@ -27,7 +29,6 @@ import { HttpResponse } from '@angular/common/http';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-
     // Material
     MatFormFieldModule,
     MatInputModule,
@@ -36,7 +37,9 @@ import { HttpResponse } from '@angular/common/http';
     MatButtonModule,
     MatIconModule,
     MatTableModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
+    MatCard,
+    MatProgressBar
   ],
   templateUrl: './invoice-list.component.html',
   styleUrls: ['./invoice-list.component.scss']
@@ -58,13 +61,15 @@ export class InvoiceListComponent implements OnInit {
 
   filteredCustomers$!: Observable<any[]>;
   lastCustomerResults: any[] = [];
+  isPrinting = false;
+  printProgress = 0;
 
   constructor(
     private fb: FormBuilder,
     private invoiceService: InvoiceService,
     private customerService: CustomerService,
     private dialog: MatDialog
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const today = new Date();
@@ -118,7 +123,7 @@ export class InvoiceListComponent implements OnInit {
   }
 
   editInvoice(id: number) {
-   const dialogRef = this.dialog.open(BillingComponent, {
+    const dialogRef = this.dialog.open(BillingComponent, {
       width: '1200px',
       maxWidth: '95vw',
       data: {
@@ -129,16 +134,16 @@ export class InvoiceListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === true) {
-        this.onSearch(); 
+        this.onSearch();
       }
     });
   }
 
   deleteInvoice(id: number) {
     const ok = confirm('Are you sure you want to delete this invoice?');
-  
+
     if (!ok) return;
-  
+
     this.invoiceService.deleteInvoice(id).subscribe({
       next: () => {
         alert('Invoice deleted');
@@ -149,39 +154,54 @@ export class InvoiceListComponent implements OnInit {
       }
     });
   }
-  
+
   downloadInvoice(id: number) {
-    
-        this.invoiceService.printInvoice(id)
-          .subscribe((res: HttpResponse<Blob>) => {
-      
-            const blob = res.body!;
-            const contentDisposition = res.headers.get('content-disposition');
-      
-            let fileName = 'invoice.pdf';
-      
-            if (contentDisposition) {
-              // 1️⃣ RFC 5987 (filename*)
-              const fileNameStarMatch = contentDisposition.match(/filename\*\s*=\s*UTF-8''([^;]+)/i);
-              if (fileNameStarMatch?.[1]) {
-                fileName = decodeURIComponent(fileNameStarMatch[1]);
-              } else {
-                // 2️⃣ Fallback: filename=""
-                const fileNameMatch = contentDisposition.match(/filename\s*=\s*"?([^"]+)"?/i);
-                if (fileNameMatch?.[1]) {
-                  fileName = fileNameMatch[1];
-                }
-              }
+
+    this.isPrinting = true;
+    this.printProgress = 10;
+
+    this.invoiceService.printInvoice(id).subscribe({
+      next: (res) => {
+        this.printProgress = 70;
+
+        const blob = res.body!;
+        const contentDisposition = res.headers.get('content-disposition');
+
+        let fileName = 'invoice.pdf';
+
+        if (contentDisposition) {
+          const match = contentDisposition.match(/filename\*\s*=\s*UTF-8''([^;]+)/i);
+          if (match?.[1]) {
+            fileName = decodeURIComponent(match[1]);
+          } else {
+            // 2️⃣ Fallback: filename=""
+            const fileNameMatch = contentDisposition.match(/filename\s*=\s*"?([^"]+)"?/i);
+            if (fileNameMatch?.[1]) {
+              fileName = fileNameMatch[1];
             }
-      
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            a.click();
-      
-            window.URL.revokeObjectURL(url);
-          });
+          }
+        }
+
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        window.URL.revokeObjectURL(url);
+
+        this.printProgress = 100;
+      },
+      error: () => {
+        alert('Failed to generate invoice PDF');
+        this.isPrinting = false;
+      },
+      complete: () => {
+        setTimeout(() => {
+          this.isPrinting = false;
+          this.printProgress = 0;
+        }, 400);
       }
-  
+    });
+  }
+
 }

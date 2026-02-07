@@ -17,7 +17,7 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angu
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { Observable, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, map, tap } from 'rxjs/operators';
-
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Product } from '../products/product.model';
 import { BillItem } from './bill-item.model';
 import { ProductService } from '../products/product.service';
@@ -58,7 +58,8 @@ interface Customer {
     MatDatepickerModule,
     MatNativeDateModule,
     MatRadioModule,
-    FormsModule
+    FormsModule,
+    MatProgressBarModule
   ], providers: [
     provideNativeDateAdapter() // 🔥 REQUIRED
   ],
@@ -73,7 +74,9 @@ export class BillingComponent implements OnInit {
   filteredProducts$!: Observable<Product[]>;
   selectedProduct!: Product;
   canUpdatePrice = false;
-
+  isPrinting = false;
+  printProgress = 0;
+  
   /* Customer */
   filteredCustomers$!: Observable<Customer[]>;
   selectedCustomer!: Customer | null;
@@ -466,36 +469,51 @@ export class BillingComponent implements OnInit {
   }
 
   printInvoice(invoiceId: number) {
-    this.invoiceService.printInvoice(invoiceId)
-      .subscribe((res: HttpResponse<Blob>) => {
+    this.isPrinting = true;
+  this.printProgress = 10;
 
-        const blob = res.body!;
-        const contentDisposition = res.headers.get('content-disposition');
+    this.invoiceService.printInvoice(invoiceId).subscribe({
+    next: (res) => {
+      this.printProgress = 70;
 
-        let fileName = 'invoice.pdf';
+      const blob = res.body!;
+      const contentDisposition = res.headers.get('content-disposition');
 
-        if (contentDisposition) {
-          // 1️⃣ RFC 5987 (filename*)
-          const fileNameStarMatch = contentDisposition.match(/filename\*\s*=\s*UTF-8''([^;]+)/i);
-          if (fileNameStarMatch?.[1]) {
-            fileName = decodeURIComponent(fileNameStarMatch[1]);
-          } else {
-            // 2️⃣ Fallback: filename=""
-            const fileNameMatch = contentDisposition.match(/filename\s*=\s*"?([^"]+)"?/i);
-            if (fileNameMatch?.[1]) {
-              fileName = fileNameMatch[1];
-            }
+      let fileName = 'invoice.pdf';
+
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename\*\s*=\s*UTF-8''([^;]+)/i);
+        if (match?.[1]) {
+          fileName = decodeURIComponent(match[1]);
+        }else {
+          // 2️⃣ Fallback: filename=""
+          const fileNameMatch = contentDisposition.match(/filename\s*=\s*"?([^"]+)"?/i);
+          if (fileNameMatch?.[1]) {
+            fileName = fileNameMatch[1];
           }
         }
+      }
 
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        a.click();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      window.URL.revokeObjectURL(url);
 
-        window.URL.revokeObjectURL(url);
-      });
+      this.printProgress = 100;
+    },
+    error: () => {
+      alert('Failed to generate invoice PDF');
+      this.isPrinting = false;
+    },
+    complete: () => {
+      setTimeout(() => {
+        this.isPrinting = false;
+        this.printProgress = 0;
+      }, 400);
+    }
+  });
   }
 
   private updateExistingInvoice() {

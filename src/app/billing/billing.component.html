@@ -215,6 +215,9 @@
     
       </div>
     }
+
+    
+    
     <div class="grand-total">
       <div>Sale Total: {{ getSaleTotal() }}</div>
       <div class="return-text">Return Total: -{{ getReturnTotal() }}</div>
@@ -223,7 +226,7 @@
     </div>
 
     <div class="bill-actions">
-      <button mat-raised-button color="primary" (click)="saveBill()" [disabled]="isSaving || billItems.length === 0">
+      <button mat-raised-button color="primary" (click)="saveBill()" [disabled]="isSaving ||isPrinting|| billItems.length === 0">
         Save & Print
       </button>
     </div>
@@ -241,5 +244,18 @@
     </div>
   </mat-card>
   }
-
+  <div *ngIf="isPrinting" class="print-overlay">
+    <mat-card class="print-card">
+      <div class="print-title">Generating Invoice…</div>
+  
+      <mat-progress-bar
+        mode="determinate"
+        [value]="printProgress">
+      </mat-progress-bar>
+  
+      <div class="print-hint">
+        Please wait, large bills may take a few seconds
+      </div>
+    </mat-card>
+  </div>
 </div>

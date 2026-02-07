@@ -334,3 +334,36 @@
 .billing-container.dialog-mode .entry-form {
   align-items: start;
 }
+/* =========================
+   PRINT LOADER
+   ========================= */
+
+   .print-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.75);
+    z-index: 1000;
+  
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .print-card {
+    width: 320px;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .print-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  
+  .print-hint {
+    font-size: 13px;
+    color: #666;
+    margin-top: 8px;
+  }
+  
