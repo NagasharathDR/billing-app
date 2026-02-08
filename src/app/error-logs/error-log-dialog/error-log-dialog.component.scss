@@ -1,0 +1,30 @@
+.dialog-content {
+    max-height: 70vh;
+    overflow: auto;
+  }
+  
+  .row {
+    margin-bottom: 12px;
+  }
+  
+  .value {
+    margin-top: 4px;
+    font-size: 14px;
+    color: #333;
+    word-break: break-word;
+  }
+  
+  /* Stack trace */
+  .stack {
+    margin-top: 6px;
+    max-height: 300px;
+    overflow: auto;
+    background: #111;
+    color: #0f0;
+    padding: 12px;
+    font-size: 12px;
+    line-height: 1.4;
+    border-radius: 4px;
+    white-space: pre-wrap;
+  }
+  

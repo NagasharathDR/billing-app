@@ -1,0 +1,143 @@
+<mat-card class="users-card">
+    <mat-card-content>
+    <div class="users-header">
+      <h2>User Management</h2>
+  
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="startAdd()"
+        [disabled]="!canAddUser() || isAdding">
+        Add User
+      </button>
+    </div>
+  
+    <div class="limit-hint" *ngIf="!canAddUser()">
+      Maximum 4 users allowed
+    </div>
+  
+    <table mat-table [dataSource]="users" class="users-table">
+
+        <!-- SL -->
+        <ng-container matColumnDef="sl">
+          <th mat-header-cell *matHeaderCellDef>#</th>
+          <td mat-cell *matCellDef="let u; let i = index">{{ i + 1 }}</td>
+          <td mat-footer-cell *matFooterCellDef></td>
+        </ng-container>
+      
+        <!-- USERNAME -->
+        <ng-container matColumnDef="username">
+          <th mat-header-cell *matHeaderCellDef>Username</th>
+      
+          <td mat-cell *matCellDef="let u">
+            <ng-container *ngIf="editingUserId !== u.id; else editUsername">
+              {{ u.username }}
+            </ng-container>
+      
+            <ng-template #editUsername>
+              <input class="table-input" [(ngModel)]="editModel.username" />
+            </ng-template>
+          </td>
+      
+          <!-- FOOTER (ADD) -->
+          <td mat-footer-cell *matFooterCellDef>
+            <input
+              *ngIf="isAdding"
+              class="table-input"
+              placeholder="Username"
+              [(ngModel)]="newUser.username" />
+          </td>
+        </ng-container>
+      
+        <!-- PASSWORD -->
+        <ng-container matColumnDef="password">
+          <th mat-header-cell *matHeaderCellDef>Password</th>
+      
+          <td mat-cell *matCellDef="let u">
+            <ng-container *ngIf="editingUserId !== u.id">
+              ••••••••
+            </ng-container>
+      
+            <ng-container *ngIf="editingUserId === u.id">
+              <input
+                class="table-input"
+                [type]="editModel.showPassword ? 'text' : 'password'"
+                [(ngModel)]="editModel.password" />
+      
+              <button mat-icon-button (click)="editModel.showPassword = !editModel.showPassword">
+                <mat-icon>
+                  {{ editModel.showPassword ? 'visibility_off' : 'visibility' }}
+                </mat-icon>
+              </button>
+            </ng-container>
+          </td>
+      
+          <!-- FOOTER (ADD) -->
+          <td mat-footer-cell *matFooterCellDef>
+            <ng-container *ngIf="isAdding">
+              <input
+                class="table-input"
+                [type]="showNewPassword ? 'text' : 'password'"
+                placeholder="Password"
+                [(ngModel)]="newUser.password" />
+      
+              <button mat-icon-button (click)="showNewPassword = !showNewPassword">
+                <mat-icon>
+                  {{ showNewPassword ? 'visibility_off' : 'visibility' }}
+                </mat-icon>
+              </button>
+            </ng-container>
+          </td>
+        </ng-container>
+      
+        <!-- ACTIONS -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+      
+          <td mat-cell *matCellDef="let u">
+            <ng-container *ngIf="editingUserId !== u.id">
+              <button mat-icon-button color="primary" (click)="startEdit(u)">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </ng-container>
+      
+            <ng-container *ngIf="editingUserId === u.id">
+              <button mat-icon-button color="primary" (click)="saveEdit(u)">
+                <mat-icon>check</mat-icon>
+              </button>
+              <button mat-icon-button (click)="cancelEdit()">
+                <mat-icon>close</mat-icon>
+              </button>
+            </ng-container>
+          </td>
+      
+          <!-- FOOTER (ADD) -->
+          <td mat-footer-cell *matFooterCellDef>
+            <ng-container *ngIf="isAdding">
+              <button mat-icon-button color="primary" (click)="saveNewUser()">
+                <mat-icon>check</mat-icon>
+              </button>
+              <button mat-icon-button (click)="cancelAdd()">
+                <mat-icon>close</mat-icon>
+              </button>
+            </ng-container>
+          </td>
+        </ng-container>
+      
+        <!-- HEADER -->
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      
+        <!-- BODY -->
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      
+        <!-- FOOTER (INLINE ADD ROW) -->
+        <tr
+          mat-footer-row
+          *matFooterRowDef="displayedColumns"
+          [class.hidden]="!isAdding">
+        </tr>
+      
+      </table>
+    </mat-card-content>
+  </mat-card>
+  

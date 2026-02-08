@@ -36,6 +36,11 @@
           <mat-icon>description</mat-icon>
           <span class="menu-text" [class.hidden]="isCollapsed">Invoices</span>
         </a>
+
+        <a class="menu-item" routerLink="/users" (click)="closeIfMobile()">
+          <mat-icon>people</mat-icon>
+          <span class="menu-text" [class.hidden]="isCollapsed">Users</span>
+        </a>
       </nav>
 
       <!-- FOOTER (NOW WORKS, NO SCROLL) -->

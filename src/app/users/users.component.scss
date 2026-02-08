@@ -1,0 +1,75 @@
+/* =========================
+   TABLE BASICS
+   ========================= */
+
+   .users-table {
+    width: 100%;
+  }
+  
+  /* Align rows properly */
+  .users-table mat-row,
+  .users-table mat-footer-row {
+    height: 48px;
+  }
+  
+  /* =========================
+     CELLS
+     ========================= */
+  
+  .users-table mat-cell,
+  .users-table mat-footer-cell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-sizing: border-box;
+  }
+  
+  /* =========================
+     INPUTS
+     ========================= */
+  
+  .table-input {
+    height: 32px;
+    padding: 4px 6px;
+    font-size: 13px;
+    width: 140px;
+    box-sizing: border-box;
+  }
+  
+  /* =========================
+     PASSWORD CELL (input + eye)
+     ========================= */
+  
+  .users-table .mat-column-password mat-cell,
+  .users-table .mat-column-password mat-footer-cell {
+    gap: 4px;
+  }
+  
+  /* =========================
+     ACTIONS COLUMN
+     ========================= */
+  
+  .users-table .mat-column-actions mat-cell,
+  .users-table .mat-column-actions mat-footer-cell {
+    justify-content: center;
+  }
+  
+  /* Icon buttons compact */
+  .users-table button[mat-icon-button] {
+    width: 32px;
+    height: 32px;
+  }
+  
+  /* Icons size */
+  .users-table mat-icon {
+    font-size: 20px;
+  }
+  
+  /* =========================
+     HIDE FOOTER WHEN NOT ADDING
+     ========================= */
+  
+  .hidden {
+    display: none;
+  }
+  

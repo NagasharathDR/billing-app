@@ -37,6 +37,18 @@ export const routes: Routes = [
             .then(m => m.InvoiceListComponent)
       },
       {
+        path: 'errors',
+        loadComponent: () =>
+          import('./error-logs/error-logs.component')
+            .then(m => m.ErrorLogsComponent)
+      },
+      {
+        path: 'users',
+        loadComponent: () =>
+          import('./users/users.component')
+            .then(m => m.UsersComponent)
+      },
+      {
         path: '',
         redirectTo: 'billing',
         pathMatch: 'full'

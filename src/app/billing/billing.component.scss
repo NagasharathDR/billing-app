@@ -214,11 +214,13 @@
   .billing-container.dialog-mode::-webkit-scrollbar {
     width: 6px;
   }
+  .billing-container {
   ::ng-deep .mat-mdc-dialog-content {
     max-height: calc(100vh - 140px);
     overflow-y: visible !important;;
     padding: 0;
   }
+}
   /* =========================
      MOBILE
      ========================= */
@@ -325,9 +327,6 @@
   .mat-mdc-floating-label {
   top: 0;
   transform: translateY(-100%);
-}
-:host ::ng-deep .mat-mdc-dialog-content {
-  padding: 0 !important;
 }
 
 /* Prevent dialog from shrinking grid rows */

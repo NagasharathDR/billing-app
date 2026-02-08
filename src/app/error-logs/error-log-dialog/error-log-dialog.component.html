@@ -1,0 +1,27 @@
+<h2 mat-dialog-title>Error Details</h2>
+
+<mat-dialog-content class="dialog-content">
+  <div class="row">
+    <strong>Message:</strong>
+    <div class="value">{{ data.message }}</div>
+  </div>
+
+  <div class="row">
+    <strong>Method:</strong>
+    <div class="value">{{ data.methodName || '-' }}</div>
+  </div>
+
+  <div class="row">
+    <strong>Path:</strong>
+    <div class="value">{{ data.path || '-' }}</div>
+  </div>
+
+  <div class="row">
+    <strong>Stack Trace:</strong>
+    <pre class="stack">{{ data.stackTrace }}</pre>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Close</button>
+</mat-dialog-actions>

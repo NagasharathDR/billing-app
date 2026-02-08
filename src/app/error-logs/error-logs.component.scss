@@ -1,0 +1,46 @@
+table {
+    width: 100%;
+    background: #fff;
+  }
+  
+  mat-header-row {
+    font-weight: 600;
+  }
+  
+  mat-row {
+    min-height: 48px;
+  }
+  
+  mat-cell, mat-header-cell {
+    padding: 8px 12px;
+  }
+  .empty {
+    text-align: center;
+    padding: 24px;
+    color: #777;
+  }
+
+  .header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  .filters {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  .clear-btn {
+    margin-left: auto;
+  }
+  
