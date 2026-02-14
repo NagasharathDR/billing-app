@@ -171,7 +171,7 @@
             type="number"
             class="table-input"
             [value]="item.qty"
-            (change)="onQtyChange(i, $event)" />
+            (change)="onQtyChange(item, $event)" />
         </td>
       </ng-container>
   
@@ -183,7 +183,7 @@
             type="number"
             class="table-input"
             [value]="item.price"
-            (change)="onRateChange(i, $event)" />
+            (change)="onRateChange(item, $event)" />
         </td>
       </ng-container>
   
@@ -244,7 +244,12 @@
       <ng-container matColumnDef="qty">
         <th mat-header-cell *matHeaderCellDef>Qty</th>
         <td mat-cell *matCellDef="let item" class="return">
-          {{ item.qty }}
+          <!-- {{ item.qty }} -->
+          <input
+          type="number"
+          class="table-input"
+          [value]="item.qty"
+          (change)="onQtyChange(item, $event)" />
         </td>
       </ng-container>
   
@@ -252,7 +257,12 @@
       <ng-container matColumnDef="rate">
         <th mat-header-cell *matHeaderCellDef>Rate</th>
         <td mat-cell *matCellDef="let item" class="return">
-          {{ item.price }}
+          <!-- {{ item.price }} -->
+          <input
+          type="number"
+          class="table-input"
+          [value]="item.price"
+          (change)="onRateChange(item, $event)" />
         </td>
       </ng-container>
   
@@ -307,7 +317,15 @@
       <button
         mat-raised-button
         color="primary"
-        (click)="saveBill()"
+        (click)="saveBill(false)"
+        [disabled]="isSaving || isPrinting || billItems.length === 0">
+        Save & Download
+      </button>
+    
+      <button
+        mat-stroked-button
+        color="accent"
+        (click)="saveBill(true)"
         [disabled]="isSaving || isPrinting || billItems.length === 0">
         Save & Print
       </button>

@@ -360,18 +360,21 @@ export class BillingComponent implements OnInit {
     return this.getSaleTotal() - this.getReturnTotal();
   }
 
-  onQtyChange(index: number, event: Event) {
+  onQtyChange(item: BillItem, event: Event) {
     const value = Number((event.target as HTMLInputElement).value);
-    if (value < 1) return;
-    this.billItems[index].qty = value;
-    this.recalculate(index);
+    if (!item.isReturn && value < 0) return;
+    else if(item.isReturn && value>0) return;
+    const idx = this.billItems.indexOf(item);
+    this.billItems[idx].qty = value;
+    this.recalculate(idx);
   }
 
-  onRateChange(index: number, event: Event) {
+  onRateChange(item: BillItem, event: Event) {
     const value = Number((event.target as HTMLInputElement).value);
     if (value < 0) return;
-    this.billItems[index].price = value;
-    this.recalculate(index);
+    const idx = this.billItems.indexOf(item);
+    this.billItems[idx].price = value;
+    this.recalculate(idx);
   }
 
   recalculate(index: number) {
@@ -424,7 +427,7 @@ export class BillingComponent implements OnInit {
     });
   }
 
-  saveBill() {
+  saveBill(printMode: boolean = false) {
     if (this.billItems.length === 0) {
       alert('No items in bill');
       return;
@@ -458,7 +461,11 @@ export class BillingComponent implements OnInit {
       .subscribe({
         next: res => {
           alert(`Invoice ${res.billNo} saved`);
-          this.printInvoice(res.id);
+          if (printMode) {
+            this.printAndOpen(res.id);   // 🔥 print
+          } else {
+            this.printInvoice(res.id); // 🔥 download
+          }
           this.resetBilling();
         },
         error: () => {
@@ -526,6 +533,78 @@ export class BillingComponent implements OnInit {
     }
   });
   }
+
+  // printAndOpen(invoiceId: number) {
+  //   this.isPrinting = true;
+  //   this.printProgress = 10;
+  
+  //   this.invoiceService.printInvoice(invoiceId).subscribe({
+  //     next: (res) => {
+  
+  //       this.printProgress = 60;
+  
+  //       const blob = res.body!;
+  //       const url = window.URL.createObjectURL(blob);
+  
+  //       const printWindow = window.open(url, '_blank');
+  
+  //       if (printWindow) {
+  //         printWindow.onload = () => {
+  //           this.printProgress = 100;
+  
+  //           printWindow.focus();
+  //           printWindow.print();
+  
+  //           // Optional: auto close after print dialog
+  //           setTimeout(() => {
+  //             printWindow.close();
+  //           }, 1000);
+  //         };
+  //       }
+  
+  //     },
+  //     error: () => {
+  //       alert('Failed to generate invoice PDF');
+  //       this.isPrinting = false;
+  //     },
+  //     complete: () => {
+  //       setTimeout(() => {
+  //         this.isPrinting = false;
+  //         this.printProgress = 0;
+  //       }, 1500);
+  //     }
+  //   });
+  // }
+
+  printAndOpen(invoiceId: number) {
+    this.isPrinting = true;
+  
+    this.invoiceService.printInvoice(invoiceId)
+      .subscribe(res => {
+  
+        const blob = res.body!;
+        const blobUrl = URL.createObjectURL(blob);
+  
+        // ✅ OPEN IN NEW WINDOW
+        const printWindow = window.open(blobUrl, '_blank');
+  
+        if (!printWindow) {
+          alert('Popup blocked. Please allow popups.');
+          this.isPrinting = false;
+          return;
+        }
+  
+        printWindow.onload = () => {
+          printWindow.focus();
+          printWindow.print();
+        };
+  
+        this.isPrinting = false;
+      });
+  }
+    
+  
+  
 
   private updateExistingInvoice() {
 
