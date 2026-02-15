@@ -223,4 +223,31 @@ export class InvoiceListComponent implements OnInit {
     });
   }
 
+  printAndOpen(invoiceId: number) {
+    this.isPrinting = true;
+  
+    this.invoiceService.printInvoice(invoiceId)
+      .subscribe(res => {
+  
+        const blob = res.body!;
+        const blobUrl = URL.createObjectURL(blob);
+  
+        // ✅ OPEN IN NEW WINDOW
+        const printWindow = window.open(blobUrl, '_blank');
+  
+        if (!printWindow) {
+          alert('Popup blocked. Please allow popups.');
+          this.isPrinting = false;
+          return;
+        }
+  
+        printWindow.onload = () => {
+          printWindow.focus();
+          printWindow.print();
+        };
+  
+        this.isPrinting = false;
+      });
+  }
+
 }

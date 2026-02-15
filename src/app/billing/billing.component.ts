@@ -122,7 +122,7 @@ export class BillingComponent implements OnInit {
       product: ['', Validators.required],
       unit: [{ value: '', disabled: true }],
       rate: [0, [Validators.required, Validators.min(0)]],
-      qty: [1, [Validators.required, Validators.min(1)]],
+      qty: [1, [Validators.required, Validators.min(0.1)]],
       billDate: [new Date(), Validators.required],
       isReturn: [false],
     });
