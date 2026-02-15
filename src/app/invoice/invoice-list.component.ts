@@ -114,7 +114,26 @@ export class InvoiceListComponent implements OnInit {
         error: () => this.invoices = []
       });
   }
+ 
+  deleteOldInvoices() {
 
+    const confirmDelete = confirm(
+      'Are you sure you want to delete invoices older than 90 days?'
+    );
+  
+    if (!confirmDelete) return;
+  
+    this.invoiceService.deleteOldInvoices().subscribe({
+      next: (res) => {
+        alert(res.message);
+        this.onSearch(); // refresh list
+      },
+      error: () => {
+        alert('Failed to delete old invoices');
+      }
+    });
+  }
+  
   private formatDate(date: Date): string {
     const yyyy = date.getFullYear();
     const mm = String(date.getMonth() + 1).padStart(2, '0');

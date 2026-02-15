@@ -1,12 +1,22 @@
 <div class="page-container">
 
-  <h2 class="page-title">Invoice List</h2>
+  <!-- HEADER -->
+  <div class="header-row">
+    <h2 class="page-title">Invoice List</h2>
 
-  <!-- Search -->
-  <form
-    class="search-container"
-    [formGroup]="searchForm"
-    (ngSubmit)="onSearch()">
+    <button
+      mat-raised-button
+      color="warn"
+      class="delete-btn"
+      (click)="deleteOldInvoices()">
+      Delete Older Than 90 Days
+    </button>
+  </div>
+
+  <!-- SEARCH -->
+  <form class="search-container"
+        [formGroup]="searchForm"
+        (ngSubmit)="onSearch()">
 
     <mat-form-field appearance="outline">
       <mat-label>Invoice No</mat-label>
@@ -15,15 +25,13 @@
 
     <mat-form-field appearance="outline">
       <mat-label>Customer / Phone</mat-label>
-      <input
-        matInput
-        formControlName="customer"
-        [matAutocomplete]="customerAuto">
+      <input matInput
+             formControlName="customer"
+             [matAutocomplete]="customerAuto">
 
       <mat-autocomplete #customerAuto="matAutocomplete">
-        <mat-option
-          *ngFor="let c of filteredCustomers$ | async"
-          [value]="c.phone">
+        <mat-option *ngFor="let c of filteredCustomers$ | async"
+                    [value]="c.phone">
           {{ c.name }} — {{ c.phone }}
         </mat-option>
       </mat-autocomplete>
@@ -31,24 +39,20 @@
 
     <mat-form-field appearance="outline">
       <mat-label>Date</mat-label>
-      <input
-        matInput
-        [matDatepicker]="picker"
-        formControlName="billDate">
+      <input matInput
+             [matDatepicker]="picker"
+             formControlName="billDate">
       <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-datepicker #picker></mat-datepicker>
     </mat-form-field>
 
-    <button
-      mat-raised-button
-      color="primary"
-      type="submit">
+    <button mat-raised-button color="primary" type="submit">
       Search
     </button>
 
   </form>
 
-  <!-- Table -->
+  <!-- TABLE -->
   <div class="table-container">
 
     <table mat-table [dataSource]="invoices">
@@ -91,16 +95,13 @@
       <ng-container matColumnDef="action">
         <th mat-header-cell *matHeaderCellDef>Action</th>
         <td mat-cell *matCellDef="let r">
-          <button mat-icon-button color="primary"
-                  (click)="editInvoice(r.id)">
+          <button mat-icon-button color="primary" (click)="editInvoice(r.id)">
             <mat-icon>edit</mat-icon>
           </button>
-          <button mat-icon-button color="warn"
-                  (click)="deleteInvoice(r.id)">
+          <button mat-icon-button color="warn" (click)="deleteInvoice(r.id)">
             <mat-icon>delete</mat-icon>
           </button>
-          <button mat-icon-button
-                  (click)="downloadInvoice(r.id)">
+          <button mat-icon-button (click)="downloadInvoice(r.id)">
             <mat-icon>download</mat-icon>
           </button>
         </td>
@@ -116,20 +117,22 @@
       </tr>
 
     </table>
+
+    <!-- PRINT LOADER -->
     <div *ngIf="isPrinting" class="print-overlay">
       <mat-card class="print-card">
         <div class="print-title">Generating Invoice…</div>
-    
-        <mat-progress-bar
-          mode="determinate"
-          [value]="printProgress">
+
+        <mat-progress-bar mode="determinate"
+                          [value]="printProgress">
         </mat-progress-bar>
-    
+
         <div class="print-hint">
           Please wait, large bills may take a few seconds
         </div>
       </mat-card>
     </div>
+
   </div>
 
 </div>

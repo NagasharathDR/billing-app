@@ -317,6 +317,7 @@
       <button
         mat-raised-button
         color="primary"
+        class="action-btn primary-btn"
         (click)="saveBill(false)"
         [disabled]="isSaving || isPrinting || billItems.length === 0">
         Save & Download
@@ -324,12 +325,14 @@
     
       <button
         mat-stroked-button
-        color="accent"
+        color="primary"
+        class="action-btn secondary-btn"
         (click)="saveBill(true)"
         [disabled]="isSaving || isPrinting || billItems.length === 0">
         Save & Print
       </button>
     </div>
+    
   </mat-card>
   
   } @else {

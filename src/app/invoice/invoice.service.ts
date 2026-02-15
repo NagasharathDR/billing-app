@@ -51,4 +51,9 @@ private apiUrl = environment.apiBaseUrl;
   deleteInvoice(id: number) {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
+  deleteOldInvoices() {
+    return this.http.delete<any>(
+      `${this.baseUrl}/delete-older-than-90-days`
+    );
+  }
 }

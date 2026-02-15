@@ -1,27 +1,128 @@
-.page-container {
-  max-width: 1200px;
-  margin: 24px auto;
-  padding: 0 16px;
-}
+/* =========================
+   PAGE LAYOUT
+   ========================= */
 
-.page-title {
-  margin-bottom: 16px;
-  font-weight: 600;
-}
-
-.search-container {
-  display: grid;
-  grid-template-columns: 1fr 1.5fr 1fr auto;
-  gap: 16px;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.table-container {
-  overflow-x: auto;
-}
-
-.no-data {
-  padding: 16px;
-  font-style: italic;
-}
+   .page-container {
+    max-width: 1200px;
+    margin: 24px auto;
+    padding: 0 16px;
+  }
+  
+  /* =========================
+     HEADER ROW
+     ========================= */
+  
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .page-title {
+    margin: 0;
+    font-weight: 600;
+  }
+  
+  /* =========================
+     DELETE BUTTON
+     ========================= */
+  
+  .delete-btn {
+    min-width: 230px;
+    height: 42px;
+    padding: 0 20px;
+    font-weight: 500;
+    letter-spacing: 0.4px;
+    border-radius: 8px;
+  }
+  
+  /* softer premium red */
+  .delete-btn.mat-warn {
+    background-color: #e53935 !important;
+  }
+  
+  .delete-btn.mat-warn:hover {
+    background-color: #c62828 !important;
+  }
+  
+  /* =========================
+     SEARCH
+     ========================= */
+  
+  .search-container {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr 1fr auto;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  
+  /* =========================
+     TABLE
+     ========================= */
+  
+  .table-container {
+    overflow-x: auto;
+  }
+  
+  .no-data {
+    padding: 16px;
+    font-style: italic;
+    text-align: center;
+    color: #777;
+  }
+  
+  /* =========================
+     PRINT OVERLAY
+     ========================= */
+  
+  .print-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+  }
+  
+  .print-card {
+    width: 320px;
+    padding: 20px;
+    text-align: center;
+    border-radius: 12px;
+  }
+  
+  .print-title {
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  
+  .print-hint {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #666;
+  }
+  
+  /* =========================
+     RESPONSIVE
+     ========================= */
+  
+  @media (max-width: 768px) {
+  
+    .header-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+  
+    .search-container {
+      grid-template-columns: 1fr;
+    }
+  
+    .delete-btn {
+      width: 100%;
+    }
+  }
+  

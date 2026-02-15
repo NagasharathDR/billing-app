@@ -488,5 +488,33 @@
   .bill-table mat-header-row {
     border-bottom: 1px solid #e0e0e0;
   }
-  
+  /* =========================
+   BILL ACTION BUTTONS
+   ========================= */
+
+.bill-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.action-btn {
+  min-width: 160px;
+  height: 42px;
+  font-weight: 500;
+  border-radius: 8px;
+  text-transform: none;
+}
+
+/* Primary button styling */
+.primary-btn {
+  box-shadow: 0 4px 10px rgba(63, 81, 181, 0.25);
+}
+
+/* Secondary button styling */
+.secondary-btn {
+  border: 1px solid #3f51b5;
+}
+
   
